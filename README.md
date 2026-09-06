@@ -1,5 +1,7 @@
 # VCF Midwest 21 Interactive Map
 
+View the map: [https://geerlingguy.github.io/vcfmw21-map/](https://geerlingguy.github.io/vcfmw21-map/)
+
 The VCF Midwest website has a wealth of information. But the table map is a bit hard to navigate, since it only has names and IDs, not any other information.
 
 I ran the table plan and Exhibitor CSV file through Claude Opus with the instruction:
