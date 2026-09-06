@@ -180,8 +180,7 @@
     .panel-head{padding:9px 9px 9px 12px}
     .panel-head .hide{font-size:14px;padding:9px 13px}
     aside ol button{padding:11px 12px}
-    #card{left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto;
-          max-height:52vh;overflow:auto}
+    #card{width:auto;overflow:auto}
     #card .desc{max-height:24vh}
     .find input{width:150px}
     .wordmark span{display:none}
@@ -338,10 +337,37 @@ function fillCard(g){
   if (removed.length) add('Removed', removed.join(' / '));
 }
 
-/* place the popover next to the group's tables, clamped to the window */
+/* The visual viewport is what the person can actually see. When the page is
+   pinch-zoomed on a phone, it is a smaller window onto the layout viewport, and
+   a position:fixed element pinned to "the bottom" lands off screen. Everything
+   below positions against these numbers instead of innerWidth/innerHeight. */
+function vport(){
+  const vv = window.visualViewport;
+  return vv
+    ? {x: vv.offsetLeft, y: vv.offsetTop, w: vv.width, h: vv.height}
+    : {x: 0, y: 0, w: innerWidth, h: innerHeight};
+}
+
+/* place the popover next to the group's tables, clamped to what's on screen */
 function placeCard(gi){
   card.classList.add('open');
-  if (innerWidth <= 760) return;             // docked to the bottom edge by CSS
+  const v = vport();
+
+  if (innerWidth <= 760){                    // docked along the bottom of the view
+    const pad = 8;
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    card.style.width = (v.w - pad * 2) + 'px';
+    card.style.maxHeight = Math.round(v.h * 0.55) + 'px';
+    card.style.left = Math.round(v.x + pad) + 'px';
+    card.style.top = Math.round(v.y + v.h - card.offsetHeight - pad) + 'px';
+    return;
+  }
+
+  card.style.width = '';                     // drop any sizing left by the docked layout
+  card.style.maxHeight = '';
+  card.style.right = '';
+  card.style.bottom = '';
   const rects = hotsByGroup[gi].map(e => e.getBoundingClientRect());
   const box = {
     l: Math.min(...rects.map(r => r.left)),
@@ -350,14 +376,25 @@ function placeCard(gi){
     b: Math.max(...rects.map(r => r.bottom))
   };
   const cw = card.offsetWidth, ch = card.offsetHeight, pad = 10;
+  const minX = v.x + pad, maxX = v.x + v.w - cw - pad;
+  const minY = Math.max(v.y + pad, 58), maxY = v.y + v.h - ch - pad;
   let x = box.r + pad;
-  if (x + cw > innerWidth - pad) x = box.l - cw - pad;
-  if (x < pad) x = Math.min(Math.max(pad, box.l), innerWidth - cw - pad);
-  let y = box.t;
-  if (y + ch > innerHeight - pad) y = innerHeight - ch - pad;
-  if (y < 58) y = 58;
+  if (x > maxX) x = box.l - cw - pad;
+  if (x < minX) x = Math.min(Math.max(minX, box.l), maxX);
+  let y = Math.min(Math.max(box.t, minY), Math.max(minY, maxY));
   card.style.left = Math.round(x) + 'px';
   card.style.top  = Math.round(y) + 'px';
+}
+
+if (window.visualViewport){
+  let pending = false;
+  const follow = () => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; if (selected !== null) placeCard(selected); });
+  };
+  visualViewport.addEventListener('resize', follow);
+  visualViewport.addEventListener('scroll', follow);
 }
 
 document.getElementById('cardX').addEventListener('click', clearSel);
@@ -461,9 +498,12 @@ function centerOn(gi){
   // zoom in far enough that table numbers are actually readable, phone or laptop
   const want = Math.min(8, Math.max(zoom, 2800 / baseW));
   if (want > zoom) { zoom = want; stage.style.width = (baseW * zoom) + 'px'; }
-  view.scrollLeft = cx * baseW * zoom - view.clientWidth / 2;
+  // aim for the middle of what's visible, which is not the middle of the page
+  // when it's pinch-zoomed
+  const v = vport(), vr = view.getBoundingClientRect();
   const yFrac = innerWidth <= 760 ? 0.3 : 0.5;   // sit above the docked card on phones
-  view.scrollTop  = cy * baseW * zoom * (H/W) - view.clientHeight * yFrac;
+  view.scrollLeft = cx * baseW * zoom - (v.x + v.w / 2 - vr.left);
+  view.scrollTop  = cy * baseW * zoom * (H/W) - (v.y + v.h * yFrac - vr.top);
 }
 
 /* ---------- exhibitor list ---------- */
@@ -490,7 +530,7 @@ function renderList(items){
     b.querySelector('.lc').textContent = g.locs.join(' / ');
     b.addEventListener('click', () => {
       if (innerWidth <= 760) setList(false);   // get the panel out of the way of the map
-      select(g.g, {center:true});
+      select(g.g, {center:true, keep:true});
     });
     b.addEventListener('mouseenter', () => hover(g.g, true));
     b.addEventListener('mouseleave', () => hover(g.g, false));
@@ -562,8 +602,8 @@ q.addEventListener('keydown', e => {
   q.blur();                                  // drop the phone keyboard
   if (innerWidth <= 760) setList(false);
   const first = listBody.querySelector('li');
-  if (first) { select(+first.dataset.g, {center:true, scrollList:true}); return; }
-  if (lastHits.length) select(lastHits[0].g, {center:true});
+  if (first) { select(+first.dataset.g, {center:true, scrollList:true, keep:true}); return; }
+  if (lastHits.length) select(lastHits[0].g, {center:true, keep:true});
 });
 </script>
 </body>
