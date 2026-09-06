@@ -69,20 +69,35 @@
   .toggle[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
   /* ---------- body ---------- */
-  main{flex:1 1 auto;display:flex;min-height:0}
+  main{flex:1 1 auto;display:flex;min-height:0;position:relative}
 
   /* exhibitor list */
   aside{
-    flex:0 0 300px;border-right:1px solid var(--rule);overflow-y:auto;background:#fff;
+    flex:0 0 300px;border-right:1px solid var(--rule);background:#fff;
+    display:flex;flex-direction:column;min-height:0;
   }
   aside.hidden{display:none}
-  aside ol{list-style:none;margin:0;padding:0}
+  .panel-head{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:7px 8px 7px 12px;border-bottom:1px solid var(--rule);background:var(--paper);
+  }
+  .panel-head h2{
+    margin:0;font-family:var(--mono);font-size:12px;font-weight:400;color:var(--muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .panel-head .hide{
+    flex:0 0 auto;border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;
+    font-family:var(--mono);font-size:12px;line-height:1;padding:6px 9px;
+  }
+  .panel-head .hide:hover{background:var(--sage)}
+  .panel-head .hide:focus-visible{outline:2px solid var(--mark);outline-offset:1px}
+  aside ol{flex:1 1 auto;overflow-y:auto;list-style:none;margin:0;padding:0;-webkit-overflow-scrolling:touch}
   aside li{border-bottom:1px solid #e4e4e0}
-  aside button{
+  aside ol button{
     display:block;width:100%;text-align:left;background:none;border:0;cursor:pointer;
     padding:8px 12px;font:inherit;color:inherit;
   }
-  aside button:hover,aside button:focus-visible{background:var(--sage);outline:none}
+  aside ol button:hover,aside ol button:focus-visible{background:var(--sage);outline:none}
   aside .nm{font-size:14px;line-height:1.25}
   aside .lc{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
   aside li.on button{background:var(--sage-deep)}
@@ -143,11 +158,18 @@
     position:fixed;left:12px;bottom:12px;z-index:20;
     font-family:var(--mono);font-size:11px;color:var(--muted);
     background:rgba(251,251,250,.92);border:1px solid #d5d5d0;padding:5px 8px;
-    pointer-events:none;
+    pointer-events:none;transition:left .12s linear;
   }
+  body.list-open #hint{left:312px}
   @media (max-width:760px){
     aside{position:absolute;z-index:30;inset:0 auto 0 0;width:82vw;flex-basis:82vw;
           box-shadow:4px 0 0 rgba(20,20,20,.12)}
+    .panel-head{padding:9px 9px 9px 12px}
+    .panel-head .hide{font-size:14px;padding:9px 13px}
+    aside ol button{padding:11px 12px}
+    #card{left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto;
+          max-height:52vh;overflow:auto}
+    #card .desc{max-height:24vh}
     .find input{width:150px}
     .wordmark span{display:none}
     #hint{display:none}
@@ -174,7 +196,13 @@
 </header>
 
 <main>
-  <aside id="list" class="hidden"><ol id="listBody"></ol></aside>
+  <aside id="list" class="hidden" aria-label="Exhibitor list">
+    <div class="panel-head">
+      <h2 id="listHead">All exhibitors</h2>
+      <button class="hide" id="listX">Hide &times;</button>
+    </div>
+    <ol id="listBody"></ol>
+  </aside>
   <div id="view">
     <div id="stage">
       <img id="plan" src="21tableplan.png" alt="VCF Midwest 21 table plan">
@@ -298,6 +326,7 @@ function fillCard(g){
 /* place the popover next to the group's tables, clamped to the window */
 function placeCard(gi){
   card.classList.add('open');
+  if (innerWidth <= 760) return;             // docked to the bottom edge by CSS
   const rects = hotsByGroup[gi].map(e => e.getBoundingClientRect());
   const box = {
     l: Math.min(...rects.map(r => r.left)),
@@ -319,7 +348,10 @@ function placeCard(gi){
 document.getElementById('cardX').addEventListener('click', clearSel);
 view.addEventListener('click', () => { if (!moved) clearSel(); });
 addEventListener('keydown', e => {
-  if (e.key === 'Escape'){ clearSel(); document.getElementById('q').blur(); }
+  if (e.key !== 'Escape') return;
+  if (card.classList.contains('open')){ clearSel(); return; }
+  if (!aside.classList.contains('hidden')){ setList(false, true); return; }
+  document.getElementById('q').blur();
 });
 
 /* ---------- zoom & pan ---------- */
@@ -411,9 +443,12 @@ function centerOn(gi){
   const r = DATA.groups[gi].rects;
   const cx = (Math.min(...r.map(t=>t.x)) + Math.max(...r.map(t=>t.x+t.w))) / 2 / W;
   const cy = (Math.min(...r.map(t=>t.y)) + Math.max(...r.map(t=>t.y+t.h))) / 2 / H;
-  if (zoom < 2) { zoom = 2; stage.style.width = (baseW * zoom) + 'px'; }
+  // zoom in far enough that table numbers are actually readable, phone or laptop
+  const want = Math.min(8, Math.max(zoom, 2800 / baseW));
+  if (want > zoom) { zoom = want; stage.style.width = (baseW * zoom) + 'px'; }
   view.scrollLeft = cx * baseW * zoom - view.clientWidth / 2;
-  view.scrollTop  = cy * baseW * zoom * (H/W) - view.clientHeight / 2;
+  const yFrac = innerWidth <= 760 ? 0.3 : 0.5;   // sit above the docked card on phones
+  view.scrollTop  = cy * baseW * zoom * (H/W) - view.clientHeight * yFrac;
 }
 
 /* ---------- exhibitor list ---------- */
@@ -438,7 +473,10 @@ function renderList(items){
     b.innerHTML = '<div class="nm"></div><div class="lc"></div>';
     b.querySelector('.nm').textContent = g.name;
     b.querySelector('.lc').textContent = g.locs.join(' / ');
-    b.addEventListener('click', () => select(g.g, {center:true}));
+    b.addEventListener('click', () => {
+      if (innerWidth <= 760) setList(false);   // get the panel out of the way of the map
+      select(g.g, {center:true});
+    });
     b.addEventListener('mouseenter', () => hover(g.g, true));
     b.addEventListener('mouseleave', () => hover(g.g, false));
     li.appendChild(b);
@@ -449,12 +487,21 @@ function renderList(items){
 renderList(listable);
 
 const listBtn = document.getElementById('listBtn');
+const listX = document.getElementById('listX');
+const listHead = document.getElementById('listHead');
 const aside = document.getElementById('list');
-listBtn.addEventListener('click', () => {
-  const open = aside.classList.toggle('hidden') === false;
+
+function listOpen(){ return !aside.classList.contains('hidden'); }
+function setList(open, focusBack){
+  if (listOpen() === open) return;
+  aside.classList.toggle('hidden', !open);
+  document.body.classList.toggle('list-open', open);
   listBtn.setAttribute('aria-pressed', open);
-  fitKeep();
-});
+  if (focusBack) listBtn.focus();
+  reflow();
+}
+listBtn.addEventListener('click', () => setList(!listOpen()));
+listX.addEventListener('click', () => setList(false, true));
 function fitKeep(){ reflow(); }
 
 /* ---------- search ---------- */
@@ -464,7 +511,11 @@ const qn = document.getElementById('qn');
 q.addEventListener('input', () => {
   const s = q.value.trim().toLowerCase();
   document.querySelectorAll('.hot.match').forEach(e => e.classList.remove('match'));
-  if (!s){ qn.textContent = ''; lastHits = []; renderList(listable); return; }
+  if (!s){
+    qn.textContent = ''; lastHits = [];
+    listHead.textContent = 'All exhibitors';
+    renderList(listable); return;
+  }
   const score = g => {
     const n = g.name.toLowerCase();
     if (g.locs.some(l => l.toLowerCase() === s)) return 0;   // exact table number
@@ -486,12 +537,15 @@ q.addEventListener('input', () => {
   qn.textContent = ordered.length;
   renderList(ordered);
   lastHits = ordered;
-  if (aside.classList.contains('hidden')){
-    aside.classList.remove('hidden'); listBtn.setAttribute('aria-pressed', true); fitKeep();
-  }
+  listHead.textContent = ordered.length
+    ? ordered.length + (ordered.length === 1 ? ' match for ' : ' matches for ') + '"' + q.value.trim() + '"'
+    : 'No matches';
+  setList(true);
 });
 q.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
+  q.blur();                                  // drop the phone keyboard
+  if (innerWidth <= 760) setList(false);
   const first = listBody.querySelector('li');
   if (first) { select(+first.dataset.g, {center:true, scrollList:true}); return; }
   if (lastHits.length) select(lastHits[0].g, {center:true});
