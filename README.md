@@ -21,3 +21,7 @@ I have attached a CSV with all the exhibitor information (21tables.csv), and the
 And it spat out the index.html file referencing the original table plan PNG (as well as the self-contained larger page vcfmw21-map.html).
 
 This is more useful for me as I can search by name, description, ID, etc. and also zoom around on the map to find out what is where.
+
+## AI Disclosure
+
+As stated previously, this page was generated with Claude Opus. Here is the full prompt / chat history: [https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20](https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20).

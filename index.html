@@ -17,6 +17,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
+    /* 1 while the page is at normal zoom; the live pinch-zoom factor otherwise.
+       Highlight outlines divide by it so they stay a hairline on screen. */
+    --vs:1;
     --paper:#fbfbfa;
     --ink:#141414;
     --rule:#141414;
@@ -124,12 +127,15 @@
     -webkit-tap-highlight-color:transparent;
   }
   .hot::after{
-    content:"";position:absolute;inset:-1px;
+    content:"";position:absolute;inset:calc(-1px / var(--vs));
     background:transparent;transition:background .08s linear;
   }
-  .hot.hl::after{background:rgba(0,166,224,.34);box-shadow:inset 0 0 0 1px rgba(0,90,125,.85)}
-  .hot.sel::after{background:rgba(0,166,224,.5);box-shadow:inset 0 0 0 2px #00506e}
-  .hot.match::after{background:rgba(255,196,0,.42);box-shadow:inset 0 0 0 1px #8a6d00}
+  .hot.hl::after{background:rgba(0,166,224,.34);
+    box-shadow:inset 0 0 0 calc(1px / var(--vs)) rgba(0,90,125,.85)}
+  .hot.sel::after{background:rgba(0,166,224,.5);
+    box-shadow:inset 0 0 0 calc(2px / var(--vs)) #00506e}
+  .hot.match::after{background:rgba(255,196,0,.42);
+    box-shadow:inset 0 0 0 calc(1px / var(--vs)) #8a6d00}
   .hot.match.hl::after,.hot.match.sel::after{background:rgba(0,166,224,.5)}
   .hot:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
 
@@ -397,12 +403,24 @@ function placeCard(gi){
   card.style.top  = Math.round(y) + 'px';
 }
 
+/* Pinch-zooming the page magnifies the hotspot outlines along with everything
+   else, and at high zoom a 2px outline swallows the table it is marking. Hand
+   the live scale to CSS so those outlines can divide it back out. */
+function syncScale(){
+  document.documentElement.style.setProperty('--vs', vport().s);
+}
+syncScale();
+
 if (window.visualViewport){
   let pending = false;
   const follow = () => {
     if (pending) return;
     pending = true;
-    requestAnimationFrame(() => { pending = false; if (selected !== null) placeCard(selected); });
+    requestAnimationFrame(() => {
+      pending = false;
+      syncScale();
+      if (selected !== null) placeCard(selected);
+    });
   };
   visualViewport.addEventListener('resize', follow);
   visualViewport.addEventListener('scroll', follow);
