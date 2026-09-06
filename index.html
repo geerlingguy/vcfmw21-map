@@ -2,8 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VCF Midwest 21 — interactive table guide</title>
+<meta name="description" content="Interactive floor plan for Vintage Computer Festival Midwest 21. Tap any table to see who is exhibiting there, what they are showing, and where to find them.">
+<link rel="canonical" href="https://geerlingguy.github.io/vcfmw21-map/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://geerlingguy.github.io/vcfmw21-map/">
+<meta property="og:title" content="VCF Midwest 21 — interactive table guide">
+<meta property="og:description" content="Interactive floor plan for Vintage Computer Festival Midwest 21. Tap any table to see who is exhibiting there, what they are showing, and where to find them.">
+<meta property="og:image" content="https://geerlingguy.github.io/vcfmw21-map/og-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Floor plan of the VCF Midwest 21 exhibit hall">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
     --paper:#fbfbfa;
@@ -41,6 +52,7 @@
     text-decoration:none;border-bottom:1px solid var(--mark);padding-bottom:1px;white-space:nowrap;
   }
   header a.site:hover{background:var(--mark);color:#fff;border-color:var(--mark)}
+  header .sep{font-family:var(--mono);font-size:13px;color:#b6b6b0;user-select:none}
   .grow{flex:1 1 auto}
 
   .find{position:relative;display:flex;align-items:center}
@@ -57,7 +69,8 @@
   .zoom{display:flex;border:1px solid var(--rule)}
   .zoom button{
     font-family:var(--mono);font-size:14px;line-height:1;
-    width:30px;height:28px;border:0;background:#fff;color:var(--ink);cursor:pointer;
+    min-width:30px;padding:0 8px;height:28px;
+    border:0;background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;
   }
   .zoom button + button{border-left:1px solid var(--rule)}
   .zoom button:hover{background:var(--sage)}
@@ -193,6 +206,8 @@
     <button id="zin" title="Zoom in">+</button>
   </div>
   <a class="site" href="https://vcfmw.org/" target="_blank" rel="noopener">vcfmw.org</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <a class="site" href="https://github.com/geerlingguy/vcfmw21-map" target="_blank" rel="noopener">Source</a>
 </header>
 
 <main>
