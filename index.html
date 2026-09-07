@@ -68,6 +68,8 @@
     font-family:var(--mono);font-size:12px;color:var(--ink);user-select:none;
   }
   .keepsel input{margin:0;accent-color:var(--ink);cursor:pointer}
+  .keepsel .lbl-full,.keepsel .lbl-short{margin-left:7px}
+  .keepsel .lbl-short{display:none}
   .selio{display:flex;border:1px solid var(--rule)}
   .selio button{
     font-family:var(--mono);font-size:12px;line-height:1;
@@ -213,6 +215,8 @@
   footer a:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
   footer .sep{font-family:var(--mono);font-size:13px;color:#b6b6b0;user-select:none}
   #hint{margin:0;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  footer .brand{display:none;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  footer .brand b{font-weight:700;color:var(--ink)}
   @media (max-width:760px){
     aside{position:absolute;z-index:30;inset:0 auto 0 0;width:82vw;flex-basis:82vw;
           box-shadow:4px 0 0 rgba(20,20,20,.12)}
@@ -221,9 +225,22 @@
     aside ol button{padding:11px 12px}
     #card{width:auto;overflow:auto}
     footer{padding:9px 12px}
-    .find{flex:1 1 auto}
-    .find input{width:100%}
-    .wordmark span{display:none}
+    .find{flex:1 1 104px;min-width:96px}
+    .find input{width:100%;min-width:0}
+    .keepsel .lbl-full{display:none}
+    .keepsel .lbl-short{display:inline}
+    .wordmark{display:none}
+    footer .brand{display:block}
+    /* Two rows on a phone: the controls you reach for while walking the hall on
+       the first, the selection/print tools on the second. */
+    header{gap:8px;padding:8px 12px}
+    .grow{display:none}
+    header .toggle{order:1}
+    header .find{order:2}
+    header .zoom{order:3}
+    header .keepsel{order:4}
+    header .selio{order:5}
+    header .iconbtn{order:6}
     #hint{display:none}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -298,7 +315,7 @@
     <span class="count" id="qn"></span>
   </div>
   <label class="keepsel" for="keepSel" title="Maintain selected exhibitors when clicking on the map">
-    <input type="checkbox" id="keepSel"> Maintain exhibitor selections
+    <input type="checkbox" id="keepSel"><span class="lbl-full">Maintain exhibitor selections</span><span class="lbl-short">Keep selections</span>
   </label>
   <div class="selio">
     <button id="selExport" title="Export the selected exhibitors" disabled>export</button>
@@ -361,6 +378,7 @@
     <a href="https://github.com/geerlingguy/vcfmw21-map" target="_blank" rel="noopener">Source</a>
   </div>
   <p id="hint">Hover on a table for details or click to pin &middot; drag to pan &middot; ctrl+scroll to zoom</p>
+  <div class="brand"><b>VCF Midwest 21</b> table guide</div>
 </footer>
 
 <script>
@@ -761,12 +779,18 @@ function centerOn(gi){
   // zoom in far enough that table numbers are actually readable, phone or laptop
   const want = Math.min(8, Math.max(zoom, 2800 / baseW));
   if (want > zoom) { zoom = want; stage.style.width = (baseW * zoom) + 'px'; }
-  // aim for the middle of what's visible, which is not the middle of the page
-  // when it's pinch-zoomed
+  // Aim at the middle of the map area that is actually on screen. The header can
+  // be several rows tall and pinch-zoom shrinks the window further, so the target
+  // has to come from where #view and the visual viewport overlap — otherwise the
+  // table gets parked behind the header.
   const v = vport(), vr = view.getBoundingClientRect();
-  const yFrac = innerWidth <= 760 ? 0.3 : 0.5;   // sit above the docked card on phones
-  view.scrollLeft = cx * baseW * zoom - (v.x + v.w / 2 - vr.left);
-  view.scrollTop  = cy * baseW * zoom * (H/W) - (v.y + v.h * yFrac - vr.top);
+  const left = Math.max(vr.left, v.x), right  = Math.min(vr.right,  v.x + v.w);
+  const top  = Math.max(vr.top,  v.y), bottom = Math.min(vr.bottom, v.y + v.h);
+  const yFrac = innerWidth <= 760 ? 0.35 : 0.5;   // sit above the docked card on phones
+  const aimX = left + Math.max(0, right - left) / 2;
+  const aimY = top  + Math.max(0, bottom - top) * yFrac;
+  view.scrollLeft = cx * baseW * zoom - (aimX - vr.left);
+  view.scrollTop  = cy * baseW * zoom * (H/W) - (aimY - vr.top);
 }
 
 /* ---------- exhibitor list ---------- */
@@ -824,6 +848,12 @@ function fitKeep(){ reflow(); }
 
 /* ---------- search ---------- */
 const q = document.getElementById('q');
+const narrow = matchMedia('(max-width:760px)');
+function setPlaceholder(){
+  q.placeholder = narrow.matches ? 'Search' : 'Search exhibitors or tables';
+}
+setPlaceholder();
+narrow.addEventListener('change', setPlaceholder);
 let lastHits = [];
 const qn = document.getElementById('qn');
 q.addEventListener('input', () => {
