@@ -79,6 +79,15 @@
   .selio button:active:not(:disabled){background:var(--sage-deep)}
   .selio button:disabled{color:var(--muted);cursor:default}
   #selMsg{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+  .iconbtn{
+    display:flex;align-items:center;justify-content:center;
+    width:30px;height:28px;padding:0;
+    border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;
+  }
+  .iconbtn:hover{background:var(--sage)}
+  .iconbtn:active{background:var(--sage-deep)}
+  .iconbtn:focus-visible{outline:2px solid var(--mark);outline-offset:1px}
+  .iconbtn svg{width:16px;height:16px;display:block}
   .zoom{display:flex;border:1px solid var(--rule)}
   .zoom button{
     font-family:var(--mono);font-size:14px;line-height:1;
@@ -218,6 +227,65 @@
     #hint{display:none}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* ---------- one-page printout ---------- */
+  /* The sheet is laid out off screen at paper size so it can be measured before
+     printing. This is a US event, so it is sized to US Letter landscape exactly:
+     11 x 8.5in less the .25in margin below. Filling the page is what keeps the
+     exhibitor list on the bottom edge instead of floating above dead paper. The
+     plan carries its own title, so nothing here competes with the map for room. */
+  #sheet{
+    position:absolute;left:-20000px;top:0;
+    width:10.5in;height:8in;overflow:hidden;
+    display:flex;flex-direction:column;
+    background:#fff;color:var(--ink);
+  }
+  #sheet .pmap{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
+  #sheet .pplan{position:relative}
+  #sheet .pplan img{width:100%;height:100%;display:block}
+  /* a selected table: saturated fill to find in colour, hard rule for greyscale */
+  #sheet .pmark{
+    position:absolute;box-sizing:border-box;
+    background:rgba(0,166,224,.45);border:.75pt solid #06384b;
+  }
+  #sheet .pleads{position:absolute;left:0;top:0;width:100%;height:100%}
+  /* the number tying a table to its legend entry; fixed size, so it stays
+     readable however far the plan itself has been scaled down */
+  #sheet .pbadge{
+    position:absolute;transform:translate(-50%,-50%);box-sizing:border-box;
+    display:flex;align-items:center;justify-content:center;
+    min-width:.14in;height:.14in;padding:0 1.2pt;
+    background:var(--ink);color:#fff;border:.5pt solid #fff;
+    font-family:var(--mono);font-size:7pt;font-weight:700;line-height:1;
+  }
+  #sheet .pkey{
+    flex:0 0 auto;border-top:1px solid var(--rule);padding-top:4pt;
+    column-count:6;column-gap:.16in;font-size:8.2pt;
+  }
+  #sheet .pkey:empty{display:none}
+  #sheet .pkey .it{
+    break-inside:avoid;-webkit-column-break-inside:avoid;
+    display:flex;gap:3.5pt;align-items:baseline;padding-bottom:2pt;line-height:1.25;
+  }
+  #sheet .pkey .b{
+    flex:0 0 auto;box-sizing:border-box;
+    display:flex;align-items:center;justify-content:center;
+    min-width:1.55em;height:1.3em;padding:0 .25em;
+    background:var(--ink);color:#fff;
+    font-family:var(--mono);font-size:.85em;font-weight:700;line-height:1;
+  }
+  #sheet .pkey .t{min-width:0}
+  #sheet .pkey .l{font-family:var(--mono);font-size:.8em;color:#4a4c46;white-space:nowrap}
+  #sheet .pkey .more{font-style:italic;color:#4a4c46}
+
+  @media print{
+    @page{size:letter landscape;margin:.25in}
+    html,body{height:auto;overflow:visible;background:#fff}
+    body{display:block}
+    header,main,footer,#card{display:none!important}
+    #sheet{position:static;margin:0 auto}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
 </style>
 </head>
 <body>
@@ -239,6 +307,15 @@
   <input type="file" id="selFile" accept="application/json,.json" hidden>
   <span id="selMsg" role="status" aria-live="polite"></span>
   <div class="grow"></div>
+  <button class="iconbtn" id="selPrint" type="button" aria-label="Print map"
+          title="Print a one-page map of the selected exhibitors (landscape)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M7 9V3h10v6"/>
+      <path d="M7 19H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="7" y="14.5" width="10" height="6.5"/>
+    </svg>
+  </button>
   <div class="zoom">
     <button id="zout" title="Zoom out">&minus;</button>
     <button id="zfit" title="Fit whole map">fit</button>
@@ -274,6 +351,8 @@
     <button class="copy" id="cCopy" type="button" title="Copy a direct link to this exhibitor">copy link</button>
   </div>
 </div>
+
+<div id="sheet" aria-hidden="true"></div>
 
 <footer>
   <div class="links">
@@ -837,7 +916,183 @@ const btnExport = document.getElementById('selExport');
 const btnImport = document.getElementById('selImport');
 const eventName = (document.querySelector('.wordmark b') || {}).textContent || 'VCF Midwest';
 
+/* ---------- one-page printout ---------- */
+/* The sheet is built off screen at paper size, so everything below can be
+   measured in CSS px — 96 to the inch on screen and on paper alike — and the
+   map handed exactly the room the legend leaves it. Nothing is left to the
+   printer to scale, which is what keeps this to a single Letter page. */
+const sheet = document.getElementById('sheet');
+const SHEET_W = 10.5 * 96, SHEET_H = 8 * 96;
+const PLAN_RATIO = W / H;
+/* Legend settings in the order they are tried: each is allowed a deeper band
+   than the last, so a long list tightens its type instead of crowding out the
+   map. max is inches of page the legend may take at that size. */
+const KEY_STEPS = [
+  {fs:8.2, cw:2.35, max:1.10},
+  {fs:7.4, cw:2.10, max:1.50},
+  {fs:6.8, cw:1.90, max:1.90},
+  {fs:6.2, cw:1.72, max:2.40},
+  {fs:5.6, cw:1.55, max:3.40}
+];
+
+function mk(tag, cls, text){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function keyItem(num, g){
+  const it = mk('div', 'it');
+  it.appendChild(mk('span', 'b', String(num)));
+  const t = mk('span', 't');
+  t.appendChild(mk('span', 'n', g.name));
+  t.appendChild(document.createTextNode(' '));
+  t.appendChild(mk('span', 'l', g.locs.join('/')));
+  it.appendChild(t);
+  return it;
+}
+
+/* Badges are drawn at a fixed size, so on a shrunken plan neighbouring ones
+   collide. Nudge each off its table until it has room, and run a hairline back
+   to where it came from whenever it had to move far enough to be ambiguous. */
+function placeBadges(badges, pw, ph, leads){
+  const placed = [];
+  const fits = (x, y, w, h) => {
+    if (x - w/2 < 0 || x + w/2 > pw || y - h/2 < 0 || y + h/2 > ph) return false;
+    return !placed.some(p => Math.abs(p.x - x) * 2 < p.w + w + 2
+                          && Math.abs(p.y - y) * 2 < p.h + h + 2);
+  };
+  badges.slice().sort((a, b) => a.y - b.y || a.x - b.x).forEach(b => {
+    let fx = b.x, fy = b.y;
+    if (!fits(fx, fy, b.w, b.h)){
+      search:
+      for (let ring = 1; ring <= 4; ring++){
+        for (let a = 0; a < 8; a++){
+          const t = a * Math.PI / 4;
+          const cx = b.x + Math.cos(t) * b.w * 1.2 * ring;
+          const cy = b.y + Math.sin(t) * b.h * 1.4 * ring;
+          if (fits(cx, cy, b.w, b.h)){ fx = cx; fy = cy; break search; }
+        }
+      }
+    }
+    placed.push({x:fx, y:fy, w:b.w, h:b.h});
+    b.el.style.left = (fx / pw * 100) + '%';
+    b.el.style.top  = (fy / ph * 100) + '%';
+    if (Math.hypot(fx - b.x, fy - b.y) > b.h * 0.8){
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ln.setAttribute('x1', b.x); ln.setAttribute('y1', b.y);
+      ln.setAttribute('x2', fx);  ln.setAttribute('y2', fy);
+      ln.setAttribute('stroke', '#06384b');
+      ln.setAttribute('stroke-width', '0.7');
+      leads.appendChild(ln);
+    }
+  });
+}
+
+function buildSheet(){
+  sheet.textContent = '';
+
+  const picked = Array.from(selSet)
+    .map(gi => DATA.groups[gi])
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                 || String(a.locs[0] || '').localeCompare(String(b.locs[0] || '')));
+  const n = picked.length;
+
+  const map = mk('div', 'pmap');
+  const planBox = mk('div', 'pplan');
+  const planImg = mk('img');
+  planImg.src = plan.currentSrc || plan.src;
+  planImg.alt = '';
+  planBox.appendChild(planImg);
+  map.appendChild(planBox);
+  const key = mk('div', 'pkey');
+  picked.forEach((g, i) => key.appendChild(keyItem(i + 1, g)));
+  sheet.appendChild(map);
+  sheet.appendChild(key);
+
+  /* Tighten the legend until it fits its allowance, and only if even the
+     smallest setting cannot hold every entry, stop listing the tail. */
+  let shown = n;
+  if (n){
+    let cap = 0;
+    for (let i = 0; i < KEY_STEPS.length; i++){
+      key.style.fontSize    = KEY_STEPS[i].fs + 'pt';
+      key.style.columnWidth = KEY_STEPS[i].cw + 'in';
+      cap = KEY_STEPS[i].max * 96;
+      if (key.offsetHeight <= cap) break;
+    }
+    while (shown > 1 && key.offsetHeight > cap){
+      const drop = Math.max(1, Math.round(shown * 0.06));
+      for (let i = 0; i < drop && shown > 1; i++){
+        key.removeChild(key.lastElementChild);
+        shown--;
+      }
+    }
+    if (shown < n){
+      const more = mk('div', 'it more');
+      key.appendChild(more);
+      do {
+        more.textContent = '+ ' + (n - shown) + ' more selected, not listed';
+        if (key.offsetHeight <= cap || shown <= 1) break;
+        key.removeChild(key.children[--shown]);
+      } while (true);
+    }
+  }
+
+  /* whatever height is left goes to the map, at the plan's own aspect ratio */
+  const pw = Math.min(SHEET_W, (SHEET_H - key.offsetHeight) * PLAN_RATIO);
+  const ph = pw / PLAN_RATIO;
+  planBox.style.width  = pw + 'px';
+  planBox.style.height = ph + 'px';
+  if (!n) return;
+
+  picked.forEach(g => g.rects.forEach(r => {
+    const m = mk('div', 'pmark');
+    m.style.left   = (r.x / W * 100) + '%';
+    m.style.top    = (r.y / H * 100) + '%';
+    m.style.width  = (r.w / W * 100) + '%';
+    m.style.height = (r.h / H * 100) + '%';
+    planBox.appendChild(m);
+  }));
+
+  const leads = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  leads.setAttribute('class', 'pleads');
+  leads.setAttribute('viewBox', '0 0 ' + pw + ' ' + ph);
+  planBox.appendChild(leads);
+
+  const badges = picked.slice(0, shown).map((g, i) => {
+    const big = g.rects.reduce((a, r) => (r.w * r.h > a.w * a.h ? r : a), g.rects[0]);
+    const b = mk('div', 'pbadge', String(i + 1));
+    planBox.appendChild(b);
+    return {el: b, x: (big.x + big.w / 2) / W * pw, y: (big.y + big.h / 2) / H * ph};
+  });
+  badges.forEach(b => { b.w = b.el.offsetWidth; b.h = b.el.offsetHeight; });
+  placeBadges(badges, pw, ph, leads);
+}
+
+/* Rebuilt whenever the selection moves, so ctrl+P prints the right sheet even
+   in browsers that never fire beforeprint. */
+let sheetTimer = 0;
+function scheduleSheet(){
+  clearTimeout(sheetTimer);
+  sheetTimer = setTimeout(() => { sheetTimer = 0; buildSheet(); }, 120);
+}
+function flushSheet(){
+  if (!sheetTimer) return;
+  clearTimeout(sheetTimer);
+  sheetTimer = 0;
+  buildSheet();
+}
+addEventListener('beforeprint', flushSheet);
+document.getElementById('selPrint').addEventListener('click', () => {
+  flushSheet();
+  print();
+});
+scheduleSheet();
+
 function syncSelIO(){
+  scheduleSheet();
   if (!btnExport) return;
   btnExport.disabled = selSet.size === 0;
   btnExport.title = selSet.size
