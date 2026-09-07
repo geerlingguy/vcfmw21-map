@@ -758,11 +758,10 @@ function groupFromKey(key){
   const gi = byLoc.get(key.toLowerCase());
   return gi === undefined ? null : gi;
 }
-/* The key to hand out for a group: its ID, or its first table when it has none. */
-function keyFor(gi){
-  const g = DATA.groups[gi];
-  if (!g) return '';
-  return String(g.eid || '').trim() || String(g.locs[0] || '').trim();
+function keyFor(eid){
+  const e = DATA.groups[eid];
+  if (!e) return '';
+  return String(e.eid || '').trim() || String(e.locs[0] || '').trim();
 }
 function groupFromHash(){
   let h;
