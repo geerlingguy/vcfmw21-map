@@ -63,6 +63,31 @@
     position:absolute;right:8px;font-family:var(--mono);font-size:11px;color:var(--muted);
     pointer-events:none;
   }
+  .keepsel{
+    display:flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;
+    font-family:var(--mono);font-size:12px;color:var(--ink);user-select:none;
+  }
+  .keepsel input{margin:0;accent-color:var(--ink);cursor:pointer}
+  .selio{display:flex;border:1px solid var(--rule)}
+  .selio button{
+    font-family:var(--mono);font-size:12px;line-height:1;
+    padding:0 9px;height:28px;
+    border:0;background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;
+  }
+  .selio button + button{border-left:1px solid var(--rule)}
+  .selio button:hover:not(:disabled){background:var(--sage)}
+  .selio button:active:not(:disabled){background:var(--sage-deep)}
+  .selio button:disabled{color:var(--muted);cursor:default}
+  #selMsg{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+  .iconbtn{
+    display:flex;align-items:center;justify-content:center;
+    width:30px;height:28px;padding:0;
+    border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;
+  }
+  .iconbtn:hover{background:var(--sage)}
+  .iconbtn:active{background:var(--sage-deep)}
+  .iconbtn:focus-visible{outline:2px solid var(--mark);outline-offset:1px}
+  .iconbtn svg{width:16px;height:16px;display:block}
   .zoom{display:flex;border:1px solid var(--rule)}
   .zoom button{
     font-family:var(--mono);font-size:14px;line-height:1;
@@ -159,6 +184,14 @@
     display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;
   }
   #card .meta .k{color:var(--ink)}
+  #card .meta #cMeta{display:contents}    /* the entries stay direct flex children */
+  #card .copy{
+    margin-left:auto;font-family:var(--mono);font-size:11.5px;line-height:1;
+    padding:4px 7px;border:1px solid var(--rule);background:#fff;color:var(--ink);
+    cursor:pointer;white-space:nowrap;
+  }
+  #card .copy:hover{background:var(--sage)}
+  #card .copy:active,#card .copy.done{background:var(--sage-deep)}
   #card .note{margin:8px 0 0;font-size:12.5px;color:var(--muted);font-style:italic}
   #card .x{
     position:absolute;top:0;right:0;width:30px;height:30px;border:0;background:none;
@@ -194,6 +227,65 @@
     #hint{display:none}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* ---------- one-page printout ---------- */
+  /* The sheet is laid out off screen at paper size so it can be measured before
+     printing. This is a US event, so it is sized to US Letter landscape exactly:
+     11 x 8.5in less the .25in margin below. Filling the page is what keeps the
+     exhibitor list on the bottom edge instead of floating above dead paper. The
+     plan carries its own title, so nothing here competes with the map for room. */
+  #sheet{
+    position:absolute;left:-20000px;top:0;
+    width:10.5in;height:8in;overflow:hidden;
+    display:flex;flex-direction:column;
+    background:#fff;color:var(--ink);
+  }
+  #sheet .pmap{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
+  #sheet .pplan{position:relative}
+  #sheet .pplan img{width:100%;height:100%;display:block}
+  /* a selected table: saturated fill to find in colour, hard rule for greyscale */
+  #sheet .pmark{
+    position:absolute;box-sizing:border-box;
+    background:rgba(0,166,224,.45);border:.75pt solid #06384b;
+  }
+  #sheet .pleads{position:absolute;left:0;top:0;width:100%;height:100%}
+  /* the number tying a table to its legend entry; fixed size, so it stays
+     readable however far the plan itself has been scaled down */
+  #sheet .pbadge{
+    position:absolute;transform:translate(-50%,-50%);box-sizing:border-box;
+    display:flex;align-items:center;justify-content:center;
+    min-width:.14in;height:.14in;padding:0 1.2pt;
+    background:var(--ink);color:#fff;border:.5pt solid #fff;
+    font-family:var(--mono);font-size:7pt;font-weight:700;line-height:1;
+  }
+  #sheet .pkey{
+    flex:0 0 auto;border-top:1px solid var(--rule);padding-top:4pt;
+    column-count:6;column-gap:.16in;font-size:8.2pt;
+  }
+  #sheet .pkey:empty{display:none}
+  #sheet .pkey .it{
+    break-inside:avoid;-webkit-column-break-inside:avoid;
+    display:flex;gap:3.5pt;align-items:baseline;padding-bottom:2pt;line-height:1.25;
+  }
+  #sheet .pkey .b{
+    flex:0 0 auto;box-sizing:border-box;
+    display:flex;align-items:center;justify-content:center;
+    min-width:1.55em;height:1.3em;padding:0 .25em;
+    background:var(--ink);color:#fff;
+    font-family:var(--mono);font-size:.85em;font-weight:700;line-height:1;
+  }
+  #sheet .pkey .t{min-width:0}
+  #sheet .pkey .l{font-family:var(--mono);font-size:.8em;color:#4a4c46;white-space:nowrap}
+  #sheet .pkey .more{font-style:italic;color:#4a4c46}
+
+  @media print{
+    @page{size:letter landscape;margin:.25in}
+    html,body{height:auto;overflow:visible;background:#fff}
+    body{display:block}
+    header,main,footer,#card{display:none!important}
+    #sheet{position:static;margin:0 auto}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
 </style>
 </head>
 <body>
@@ -205,7 +297,25 @@
     <input id="q" type="search" placeholder="Search exhibitors or tables" autocomplete="off" spellcheck="false">
     <span class="count" id="qn"></span>
   </div>
+  <label class="keepsel" for="keepSel" title="Maintain selected exhibitors when clicking on the map">
+    <input type="checkbox" id="keepSel"> Maintain exhibitor selections
+  </label>
+  <div class="selio">
+    <button id="selExport" title="Export the selected exhibitors" disabled>export</button>
+    <button id="selImport" title="Restore previously selected exhibitors">import</button>
+  </div>
+  <input type="file" id="selFile" accept="application/json,.json" hidden>
+  <span id="selMsg" role="status" aria-live="polite"></span>
   <div class="grow"></div>
+  <button class="iconbtn" id="selPrint" type="button" aria-label="Print map"
+          title="Print a one-page map of the selected exhibitors (landscape)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M7 9V3h10v6"/>
+      <path d="M7 19H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="7" y="14.5" width="10" height="6.5"/>
+    </svg>
+  </button>
   <div class="zoom">
     <button id="zout" title="Zoom out">&minus;</button>
     <button id="zfit" title="Fit whole map">fit</button>
@@ -236,8 +346,13 @@
     <p class="desc" id="cDesc"></p>
     <p class="note" id="cNote"></p>
   </div>
-  <div class="meta" id="cMeta"></div>
+  <div class="meta">
+    <span id="cMeta"></span>
+    <button class="copy" id="cCopy" type="button" title="Copy a direct link to this exhibitor">copy link</button>
+  </div>
 </div>
+
+<div id="sheet" aria-hidden="true"></div>
 
 <footer>
   <div class="links">
@@ -245,7 +360,7 @@
     <span class="sep" aria-hidden="true">/</span>
     <a href="https://github.com/geerlingguy/vcfmw21-map" target="_blank" rel="noopener">Source</a>
   </div>
-  <p id="hint">click a table to pin details &middot; drag to pan &middot; ctrl+scroll to zoom</p>
+  <p id="hint">Hover on a table for details or click to pin &middot; drag to pan &middot; ctrl+scroll to zoom</p>
 </footer>
 
 <script>
@@ -273,8 +388,8 @@ DATA.groups.forEach(g => {
     b.style.height = (r.h / H * 100) + '%';
     b.setAttribute('aria-label', g.name + ', table ' + r.id);
     b.dataset.g = g.g;
-    b.addEventListener('mouseenter', () => hover(g.g, true));
-    b.addEventListener('mouseleave', () => hover(g.g, false));
+    b.addEventListener('mouseenter', () => { hover(g.g, true); peekEnter(g.g); });
+    b.addEventListener('mouseleave', () => { hover(g.g, false); peekLeave(); });
     b.addEventListener('click', e => { e.stopPropagation(); if (moved) return; select(g.g); });
     frag.appendChild(b);
     els.push(b);
@@ -285,28 +400,97 @@ stage.appendChild(frag);
 
 /* ---------- hover + selection ---------- */
 let selected = null;
+const selSet = new Set();
+const keepSel = document.getElementById('keepSel');
 function hover(gi, on){
-  if (gi === selected) return;
+  if (selSet.has(gi)) return;
   hotsByGroup[gi].forEach(e => e.classList.toggle('hl', on));
 }
-function clearSel(){
-  if (selected !== null) hotsByGroup[selected].forEach(e => e.classList.remove('sel','hl'));
+function listItem(gi){ return document.querySelector('#listBody li[data-g="' + gi + '"]'); }
+function closeCard(){
   selected = null;
   card.classList.remove('open');
+}
+function deselect(gi){
+  selSet.delete(gi);
+  hotsByGroup[gi].forEach(e => e.classList.remove('sel','hl'));
+  const li = listItem(gi);
+  if (li) li.classList.remove('on');
+  if (selected === gi) closeCard();
+  syncSelIO();
+}
+function clearSel(force){
+  peekReset();
+  if (keepSel.checked && !force){ closeCard(); return; }
+  Array.from(selSet).forEach(deselect);
+  closeCard();
   document.querySelectorAll('#listBody li.on').forEach(li => li.classList.remove('on'));
+  syncSelIO();
 }
 function select(gi, opts){
+  peekReset();
   opts = opts || {};
-  if (selected === gi && !opts.keep){ clearSel(); return; }
+  if (selSet.has(gi) && !opts.keep){ deselect(gi); return; }
   clearSel();
   selected = gi;
+  selSet.add(gi);
   hotsByGroup[gi].forEach(e => e.classList.add('sel'));
-  const li = document.querySelector('#listBody li[data-g="' + gi + '"]');
+  const li = listItem(gi);
   if (li) { li.classList.add('on'); if (opts.scrollList) li.scrollIntoView({block:'nearest'}); }
   fillCard(DATA.groups[gi]);
   if (opts.center) centerOn(gi);
   placeCard(gi);
+  syncSelIO();
 }
+keepSel.addEventListener('change', () => {
+  if (keepSel.checked) return;
+  Array.from(selSet).forEach(gi => { if (gi !== selected) deselect(gi); });
+});
+
+/* ---------- hover preview ---------- */
+const PEEK_DELAY = 1000;                 // Delay on one table before it opens
+const PEEK_GRACE = 150;                  // Delay after leaving a table before it closes, to allow moving to the popover
+const canHover = matchMedia('(hover:hover) and (pointer:fine)');
+let peekTimer = 0, peekOut = 0, peeking = null;
+/* whichever group the popover is currently showing, previewed or pinned */
+function cardGroup(){ return peeking !== null ? peeking : selected; }
+
+function peekReset(){
+  clearTimeout(peekTimer); clearTimeout(peekOut);
+  peekTimer = peekOut = 0;
+  peeking = null;
+}
+function peekOpen(gi){
+  peekTimer = 0;
+  if (drag) return;
+  peeking = gi;
+  fillCard(DATA.groups[gi]);
+  placeCard(gi);
+}
+function peekClose(){
+  if (peeking === null){ peekReset(); return; }
+  peekReset();
+  if (selected !== null){ fillCard(DATA.groups[selected]); placeCard(selected); }
+  else closeCard();
+}
+function peekEnter(gi){
+  if (!canHover.matches || drag) return;
+  clearTimeout(peekOut); peekOut = 0;
+  if (peeking !== null && peeking !== gi) peekClose();
+  clearTimeout(peekTimer);
+  if (peeking === gi) return;
+  if (selected === gi && card.classList.contains('open')) return;
+  peekTimer = setTimeout(() => peekOpen(gi), PEEK_DELAY);
+}
+function peekLeave(){
+  clearTimeout(peekTimer); peekTimer = 0;
+  if (peeking === null) return;
+  clearTimeout(peekOut);
+  peekOut = setTimeout(peekClose, PEEK_GRACE);
+}
+/* the popover has a link and a copy button in it, so hovering it holds it open */
+card.addEventListener('mouseenter', () => { clearTimeout(peekOut); peekOut = 0; });
+card.addEventListener('mouseleave', peekLeave);
 
 function fillCard(g){
   const nameEl = document.getElementById('cName');
@@ -334,6 +518,8 @@ function fillCard(g){
   n.textContent = note;
   n.style.display = note ? '' : 'none';
 
+  resetCopy();
+
   const m = document.getElementById('cMeta');
   m.textContent = '';
   const add = (k, v) => {
@@ -347,6 +533,44 @@ function fillCard(g){
   const removed = g.rects.filter(r => r.d).map(r => r.id);
   if (removed.length) add('Removed', removed.join(' / '));
 }
+
+/* ---------- copy a direct link ---------- */
+// The fragment is the exhibitor ID (keyFor)
+const btnCopy = document.getElementById('cCopy');
+let copyTimer = 0;
+function resetCopy(){
+  clearTimeout(copyTimer);
+  btnCopy.textContent = 'copy link';
+  btnCopy.classList.remove('done');
+}
+function copySaid(text){
+  btnCopy.textContent = text;
+  btnCopy.classList.add('done');
+  clearTimeout(copyTimer);
+  copyTimer = setTimeout(resetCopy, 2000);
+}
+btnCopy.addEventListener('click', () => {
+  const gi = cardGroup();
+  if (gi === null) return;
+  const key = keyFor(gi);
+  if (!key) return;
+  const url = location.href.split('#')[0] + '#' + key;
+  const legacy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    ta.remove();
+    copySaid(ok ? 'link copied' : 'copy failed');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(url).then(() => copySaid('link copied'), legacy);
+  else legacy();
+});
 
 /* The visual viewport is what the person can actually see. When the page is
    pinch-zoomed on a phone, it is a smaller window onto the layout viewport, and
@@ -419,14 +643,15 @@ if (window.visualViewport){
     requestAnimationFrame(() => {
       pending = false;
       syncScale();
-      if (selected !== null) placeCard(selected);
+      const gi = cardGroup();
+      if (gi !== null) placeCard(gi);
     });
   };
   visualViewport.addEventListener('resize', follow);
   visualViewport.addEventListener('scroll', follow);
 }
 
-document.getElementById('cardX').addEventListener('click', clearSel);
+document.getElementById('cardX').addEventListener('click', () => clearSel());
 view.addEventListener('click', () => { if (!moved) clearSel(); });
 addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
@@ -452,10 +677,15 @@ function measure(){
   baseW = view.clientWidth || 1;
   fitZoom = Math.min(1, view.clientHeight / (baseW * H / W));
 }
+
+let laidOut = false, booted = false;
+function applyHashWhenReady(){ if (laidOut && booted) selectFromHash(); }
 function init(){
   measure();
   applyZoom(1);                       // open at full width: tables are legible, scroll to explore
   view.scrollTop = 0;
+  laidOut = true;
+  applyHashWhenReady();
 }
 plan.addEventListener('load', init);
 if (plan.complete) init();
@@ -491,6 +721,7 @@ view.addEventListener('pointerdown', e => {
     return;
   }
   moved = false;
+  peekClose();
   drag = {x:e.clientX, y:e.clientY, sl:view.scrollLeft, st:view.scrollTop};
   view.classList.add('dragging');
 });
@@ -518,7 +749,10 @@ function endPointer(e){
 }
 addEventListener('pointerup', endPointer);
 addEventListener('pointercancel', endPointer);
-view.addEventListener('scroll', () => { if (selected !== null) placeCard(selected); });
+view.addEventListener('scroll', () => {
+  const gi = cardGroup();
+  if (gi !== null) placeCard(gi);
+});
 
 function centerOn(gi){
   const r = DATA.groups[gi].rects;
@@ -553,6 +787,7 @@ function renderList(items){
   items.forEach(g => {
     const li = document.createElement('li');
     li.dataset.g = g.g;
+    if (selSet.has(g.g)) li.classList.add('on');   // survive a list re-render
     const b = document.createElement('button');
     b.innerHTML = '<div class="nm"></div><div class="lc"></div>';
     b.querySelector('.nm').textContent = g.name;
@@ -633,6 +868,324 @@ q.addEventListener('keydown', e => {
   if (first) { select(+first.dataset.g, {center:true, scrollList:true, keep:true}); return; }
   if (lastHits.length) select(lastHits[0].g, {center:true, keep:true});
 });
+/* Exhibitor index */
+const byEid = new Map(), byName = new Map(), byLoc = new Map();
+DATA.groups.forEach(g => {
+  const eid = String(g.eid || '').trim();
+  if (eid && !byEid.has(eid)) byEid.set(eid, g.g);
+  byName.set(g.name.trim().toLowerCase(), g.g);
+  g.locs.forEach(l => { const k = String(l).trim().toLowerCase(); if (!byLoc.has(k)) byLoc.set(k, g.g); });
+});
+
+/* Deep Links */
+function groupFromKey(key){
+  key = String(key).trim();
+  if (!key) return null;
+  if (/^\d+$/.test(key)){
+    const padded = key.replace(/^0+/, '').padStart(3, '0');
+    const eid = byEid.has(key) ? byEid.get(key) : byEid.get(padded);
+    return eid === undefined ? null : eid;
+  }
+  const gi = byLoc.get(key.toLowerCase());
+  return gi === undefined ? null : gi;
+}
+function keyFor(eid){
+  const e = DATA.groups[eid];
+  if (!e) return '';
+  const ee = String(e.eid || '').trim();
+  return ee || String(e.locs[0] || '').trim();
+}
+function groupFromHash(){
+  let h;
+  try { h = decodeURIComponent(location.hash.slice(1)); }
+  catch (err) { return null; }        // a malformed %-escape must not break startup
+  return groupFromKey(h);
+}
+function selectFromHash(){
+  const gi = groupFromHash();
+  if (gi === null) return;
+  select(gi, {center:true, scrollList:true, keep:true});
+}
+addEventListener('hashchange', selectFromHash);
+
+/* Save/Restore Exhibitors */
+const FORMAT  = 'vcfmw-table-guide-selections';
+const selFile = document.getElementById('selFile');
+const selMsg  = document.getElementById('selMsg');
+const btnExport = document.getElementById('selExport');
+const btnImport = document.getElementById('selImport');
+const eventName = (document.querySelector('.wordmark b') || {}).textContent || 'VCF Midwest';
+
+/* ---------- one-page printout ---------- */
+/* The sheet is built off screen at paper size, so everything below can be
+   measured in CSS px — 96 to the inch on screen and on paper alike — and the
+   map handed exactly the room the legend leaves it. Nothing is left to the
+   printer to scale, which is what keeps this to a single Letter page. */
+const sheet = document.getElementById('sheet');
+const SHEET_W = 10.5 * 96, SHEET_H = 8 * 96;
+const PLAN_RATIO = W / H;
+/* Legend settings in the order they are tried: each is allowed a deeper band
+   than the last, so a long list tightens its type instead of crowding out the
+   map. max is inches of page the legend may take at that size. */
+const KEY_STEPS = [
+  {fs:8.2, cw:2.35, max:1.10},
+  {fs:7.4, cw:2.10, max:1.50},
+  {fs:6.8, cw:1.90, max:1.90},
+  {fs:6.2, cw:1.72, max:2.40},
+  {fs:5.6, cw:1.55, max:3.40}
+];
+
+function mk(tag, cls, text){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function keyItem(num, g){
+  const it = mk('div', 'it');
+  it.appendChild(mk('span', 'b', String(num)));
+  const t = mk('span', 't');
+  t.appendChild(mk('span', 'n', g.name));
+  t.appendChild(document.createTextNode(' '));
+  t.appendChild(mk('span', 'l', g.locs.join('/')));
+  it.appendChild(t);
+  return it;
+}
+
+/* Badges are drawn at a fixed size, so on a shrunken plan neighbouring ones
+   collide. Nudge each off its table until it has room, and run a hairline back
+   to where it came from whenever it had to move far enough to be ambiguous. */
+function placeBadges(badges, pw, ph, leads){
+  const placed = [];
+  const fits = (x, y, w, h) => {
+    if (x - w/2 < 0 || x + w/2 > pw || y - h/2 < 0 || y + h/2 > ph) return false;
+    return !placed.some(p => Math.abs(p.x - x) * 2 < p.w + w + 2
+                          && Math.abs(p.y - y) * 2 < p.h + h + 2);
+  };
+  badges.slice().sort((a, b) => a.y - b.y || a.x - b.x).forEach(b => {
+    let fx = b.x, fy = b.y;
+    if (!fits(fx, fy, b.w, b.h)){
+      search:
+      for (let ring = 1; ring <= 4; ring++){
+        for (let a = 0; a < 8; a++){
+          const t = a * Math.PI / 4;
+          const cx = b.x + Math.cos(t) * b.w * 1.2 * ring;
+          const cy = b.y + Math.sin(t) * b.h * 1.4 * ring;
+          if (fits(cx, cy, b.w, b.h)){ fx = cx; fy = cy; break search; }
+        }
+      }
+    }
+    placed.push({x:fx, y:fy, w:b.w, h:b.h});
+    b.el.style.left = (fx / pw * 100) + '%';
+    b.el.style.top  = (fy / ph * 100) + '%';
+    if (Math.hypot(fx - b.x, fy - b.y) > b.h * 0.8){
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ln.setAttribute('x1', b.x); ln.setAttribute('y1', b.y);
+      ln.setAttribute('x2', fx);  ln.setAttribute('y2', fy);
+      ln.setAttribute('stroke', '#06384b');
+      ln.setAttribute('stroke-width', '0.7');
+      leads.appendChild(ln);
+    }
+  });
+}
+
+function buildSheet(){
+  sheet.textContent = '';
+
+  const picked = Array.from(selSet)
+    .map(gi => DATA.groups[gi])
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                 || String(a.locs[0] || '').localeCompare(String(b.locs[0] || '')));
+  const n = picked.length;
+
+  const map = mk('div', 'pmap');
+  const planBox = mk('div', 'pplan');
+  const planImg = mk('img');
+  planImg.src = plan.currentSrc || plan.src;
+  planImg.alt = '';
+  planBox.appendChild(planImg);
+  map.appendChild(planBox);
+  const key = mk('div', 'pkey');
+  picked.forEach((g, i) => key.appendChild(keyItem(i + 1, g)));
+  sheet.appendChild(map);
+  sheet.appendChild(key);
+
+  /* Tighten the legend until it fits its allowance, and only if even the
+     smallest setting cannot hold every entry, stop listing the tail. */
+  let shown = n;
+  if (n){
+    let cap = 0;
+    for (let i = 0; i < KEY_STEPS.length; i++){
+      key.style.fontSize    = KEY_STEPS[i].fs + 'pt';
+      key.style.columnWidth = KEY_STEPS[i].cw + 'in';
+      cap = KEY_STEPS[i].max * 96;
+      if (key.offsetHeight <= cap) break;
+    }
+    while (shown > 1 && key.offsetHeight > cap){
+      const drop = Math.max(1, Math.round(shown * 0.06));
+      for (let i = 0; i < drop && shown > 1; i++){
+        key.removeChild(key.lastElementChild);
+        shown--;
+      }
+    }
+    if (shown < n){
+      const more = mk('div', 'it more');
+      key.appendChild(more);
+      do {
+        more.textContent = '+ ' + (n - shown) + ' more selected, not listed';
+        if (key.offsetHeight <= cap || shown <= 1) break;
+        key.removeChild(key.children[--shown]);
+      } while (true);
+    }
+  }
+
+  /* whatever height is left goes to the map, at the plan's own aspect ratio */
+  const pw = Math.min(SHEET_W, (SHEET_H - key.offsetHeight) * PLAN_RATIO);
+  const ph = pw / PLAN_RATIO;
+  planBox.style.width  = pw + 'px';
+  planBox.style.height = ph + 'px';
+  if (!n) return;
+
+  picked.forEach(g => g.rects.forEach(r => {
+    const m = mk('div', 'pmark');
+    m.style.left   = (r.x / W * 100) + '%';
+    m.style.top    = (r.y / H * 100) + '%';
+    m.style.width  = (r.w / W * 100) + '%';
+    m.style.height = (r.h / H * 100) + '%';
+    planBox.appendChild(m);
+  }));
+
+  const leads = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  leads.setAttribute('class', 'pleads');
+  leads.setAttribute('viewBox', '0 0 ' + pw + ' ' + ph);
+  planBox.appendChild(leads);
+
+  const badges = picked.slice(0, shown).map((g, i) => {
+    const big = g.rects.reduce((a, r) => (r.w * r.h > a.w * a.h ? r : a), g.rects[0]);
+    const b = mk('div', 'pbadge', String(i + 1));
+    planBox.appendChild(b);
+    return {el: b, x: (big.x + big.w / 2) / W * pw, y: (big.y + big.h / 2) / H * ph};
+  });
+  badges.forEach(b => { b.w = b.el.offsetWidth; b.h = b.el.offsetHeight; });
+  placeBadges(badges, pw, ph, leads);
+}
+
+/* Rebuilt whenever the selection moves, so ctrl+P prints the right sheet even
+   in browsers that never fire beforeprint. */
+let sheetTimer = 0;
+function scheduleSheet(){
+  clearTimeout(sheetTimer);
+  sheetTimer = setTimeout(() => { sheetTimer = 0; buildSheet(); }, 120);
+}
+function flushSheet(){
+  if (!sheetTimer) return;
+  clearTimeout(sheetTimer);
+  sheetTimer = 0;
+  buildSheet();
+}
+addEventListener('beforeprint', flushSheet);
+document.getElementById('selPrint').addEventListener('click', () => {
+  flushSheet();
+  print();
+});
+scheduleSheet();
+
+function syncSelIO(){
+  scheduleSheet();
+  if (!btnExport) return;
+  btnExport.disabled = selSet.size === 0;
+  btnExport.title = selSet.size
+    ? 'Export selected exhibitor' + (selSet.size === 1 ? '' : 's')
+    : 'Select an exhibitor first';
+}
+let msgTimer = 0;
+function say(text){
+  selMsg.textContent = text;
+  clearTimeout(msgTimer);
+  if (text) msgTimer = setTimeout(() => { selMsg.textContent = ''; }, 6000);
+}
+syncSelIO();
+
+btnExport.addEventListener('click', () => {
+  if (!selSet.size) return;
+  const picked = Array.from(selSet)
+    .map(gi => DATA.groups[gi])
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  const doc = {
+    format: FORMAT,
+    version: 1,
+    event: eventName,
+    saved: new Date().toISOString(),
+    count: picked.length,
+    selections: picked.map(g => ({ name: g.name, tables: g.locs.slice() }))
+  };
+  const stamp = new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(doc, null, 2)], {type:'application/json'}));
+  a.download = eventName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-exhibitors-' + stamp + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+btnImport.addEventListener('click', () => { selFile.value = ''; selFile.click(); });
+selFile.addEventListener('change', () => {
+  const f = selFile.files && selFile.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onerror = () => say("Invalid exhibitors file");
+  r.onload = () => {
+    let doc;
+    try { doc = JSON.parse(r.result); }
+    catch (err) { say('Invalid exhibitor file'); return; }
+    restore(doc);
+  };
+  r.readAsText(f);
+});
+
+function restore(doc){
+  let entries = Array.isArray(doc) ? doc
+              : (doc && Array.isArray(doc.selections)) ? doc.selections
+              : null;
+  if (!entries){ say('Invalid exhibitors file'); return; }
+
+  const found = [], missing = [];
+  entries.forEach(en => {
+    const name   = typeof en === 'string' ? en : (en && en.name) || '';
+    const tables = (en && Array.isArray(en.tables)) ? en.tables
+                 : (typeof en === 'string' ? [en] : []);
+    let gi = byName.get(String(name).trim().toLowerCase());
+    if (gi === undefined){
+      for (const t of tables){
+        gi = byLoc.get(String(t).trim().toLowerCase());
+        if (gi !== undefined) break;
+      }
+    }
+    if (gi === undefined) missing.push(name || (tables[0] || '?'));
+    else if (found.indexOf(gi) < 0) found.push(gi);
+  });
+
+  if (!found.length){ say('No exhibitors from that file are in this guide'); return; }
+
+  clearSel(true);
+  if (found.length > 1) keepSel.checked = true;
+  found.forEach(gi => {
+    selSet.add(gi);
+    hotsByGroup[gi].forEach(e => e.classList.add('sel'));
+    const li = listItem(gi);
+    if (li) li.classList.add('on');
+  });
+  syncSelIO();
+  select(found[0], {center:true, scrollList:true, keep:true});
+  say('Restored ' + found.length + ' exhibitor' + (found.length === 1 ? '' : 's')
+      + (missing.length ? ' — not found: ' + missing.join(', ') : ''));
+}
+
+// Everything a #group link touches now exists
+booted = true;
+applyHashWhenReady();
 </script>
 </body>
 </html>

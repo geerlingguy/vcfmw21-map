@@ -22,6 +22,45 @@ And it spat out the index.html file referencing the original table plan PNG (as 
 
 This is more useful for me as I can search by name, description, ID, etc. and also zoom around on the map to find out what is where.
 
+## Hover for details
+
+Resting the mouse on a table for a second opens that exhibitor's details without
+pinning them. Moving to another table closes the popover and starts the second over
+for the new one, and moving off the tables closes it entirely. The popover stays up
+while the pointer is on it, so the exhibitor link and **copy link** are still reachable.
+If an exhibitor was already pinned by clicking, their details come back once the
+preview closes. Touch devices have no hover, so they are unaffected.
+
+## Maintain exhibitor selections
+
+Clicking a table opens its details and marks it on the map, and the next click
+normally replaces that selection. Click **Maintain exhibitor selections** in the header
+to keep, so you can build up a list of every table you want to visit.
+
+With the box ticked:
+
+- Clicking a table adds it to the selection, and clicking the same table again removes it.
+- Clicking the background, pressing Escape, closing the popover, or hitting **fit**
+  only puts the details away. The marks stay.
+- Unticking the box collapses back to whichever exhibitor's details are open and
+  drops the rest, so the map cannot be left stuck full of marks.
+
+**export** writes the current exhibitor selections to a JSON file and **import** reads it
+back, which is how a list survives closing the tab or moves to your phone.
+
+## Linking to a specific exhibitor
+
+The URL fragment opens one exhibitor directly:
+
+| Link | Opens |
+| --- | --- |
+| `...vcfmw21-map/#026` | the exhibitor with ID 026, the ID shown on the popover |
+| `...vcfmw21-map/#26` | the same exhibitor; the leading zeros are optional |
+| `...vcfmw21-map/#B120` | table B120, for the few tables with no exhibitor ID |
+
+The **copy link** button on the exhibitor details creates the link and copies it 
+to the clipboard.
+
 ## AI Disclosure
 
-As stated previously, this page was generated with Claude Opus. Here is the full prompt / chat history: [https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20](https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20).
+As stated previously, this page was generated with Claude Opus. Here is the original full prompt / chat history: [https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20](https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20).
