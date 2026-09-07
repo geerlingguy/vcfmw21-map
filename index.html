@@ -233,7 +233,7 @@
     <input type="checkbox" id="keepSel"> Maintain exhibitor selections
   </label>
   <div class="selio">
-    <button id="selExport" title="Export the selected exhibtors" disabled>export</button>
+    <button id="selExport" title="Export the selected exhibitors" disabled>export</button>
     <button id="selImport" title="Restore previously selected exhibitors">import</button>
   </div>
   <input type="file" id="selFile" accept="application/json,.json" hidden>
@@ -309,7 +309,6 @@ DATA.groups.forEach(g => {
     b.style.height = (r.h / H * 100) + '%';
     b.setAttribute('aria-label', g.name + ', table ' + r.id);
     b.dataset.g = g.g;
-    if (!els.length) b.id = g.g;      // deep-link target; see selectFromHash
     b.addEventListener('mouseenter', () => hover(g.g, true));
     b.addEventListener('mouseleave', () => hover(g.g, false));
     b.addEventListener('click', e => { e.stopPropagation(); if (moved) return; select(g.g); });
@@ -752,8 +751,8 @@ function groupFromKey(key){
   if (!key) return null;
   if (/^\d+$/.test(key)){
     const padded = key.replace(/^0+/, '').padStart(3, '0');
-    const gi = byEid.has(key) ? byEid.get(key) : byEid.get(padded);
-    return gi === undefined ? null : gi;
+    const eid = byEid.has(key) ? byEid.get(key) : byEid.get(padded);
+    return eid === undefined ? null : eid;
   }
   const gi = byLoc.get(key.toLowerCase());
   return gi === undefined ? null : gi;
@@ -761,7 +760,8 @@ function groupFromKey(key){
 function keyFor(eid){
   const e = DATA.groups[eid];
   if (!e) return '';
-  return String(e.eid || '').trim() || String(e.locs[0] || '').trim();
+  const ee = String(e.eid || '').trim();
+  return ee || String(e.locs[0] || '').trim();
 }
 function groupFromHash(){
   let h;
