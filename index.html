@@ -281,7 +281,7 @@
     <span class="sep" aria-hidden="true">/</span>
     <a href="https://github.com/geerlingguy/vcfmw21-map" target="_blank" rel="noopener">Source</a>
   </div>
-  <p id="hint">click a table to pin details &middot; drag to pan &middot; ctrl+scroll to zoom</p>
+  <p id="hint">Hover on a table for details or click to pin &middot; drag to pan &middot; ctrl+scroll to zoom</p>
 </footer>
 
 <script>
@@ -309,8 +309,8 @@ DATA.groups.forEach(g => {
     b.style.height = (r.h / H * 100) + '%';
     b.setAttribute('aria-label', g.name + ', table ' + r.id);
     b.dataset.g = g.g;
-    b.addEventListener('mouseenter', () => hover(g.g, true));
-    b.addEventListener('mouseleave', () => hover(g.g, false));
+    b.addEventListener('mouseenter', () => { hover(g.g, true); peekEnter(g.g); });
+    b.addEventListener('mouseleave', () => { hover(g.g, false); peekLeave(); });
     b.addEventListener('click', e => { e.stopPropagation(); if (moved) return; select(g.g); });
     frag.appendChild(b);
     els.push(b);
@@ -341,6 +341,7 @@ function deselect(gi){
   syncSelIO();
 }
 function clearSel(force){
+  peekReset();
   if (keepSel.checked && !force){ closeCard(); return; }
   Array.from(selSet).forEach(deselect);
   closeCard();
@@ -348,6 +349,7 @@ function clearSel(force){
   syncSelIO();
 }
 function select(gi, opts){
+  peekReset();
   opts = opts || {};
   if (selSet.has(gi) && !opts.keep){ deselect(gi); return; }
   clearSel();
@@ -365,6 +367,51 @@ keepSel.addEventListener('change', () => {
   if (keepSel.checked) return;
   Array.from(selSet).forEach(gi => { if (gi !== selected) deselect(gi); });
 });
+
+/* ---------- hover preview ---------- */
+const PEEK_DELAY = 1000;                 // Delay on one table before it opens
+const PEEK_GRACE = 150;                  // Delay after leaving a table before it closes, to allow moving to the popover
+const canHover = matchMedia('(hover:hover) and (pointer:fine)');
+let peekTimer = 0, peekOut = 0, peeking = null;
+/* whichever group the popover is currently showing, previewed or pinned */
+function cardGroup(){ return peeking !== null ? peeking : selected; }
+
+function peekReset(){
+  clearTimeout(peekTimer); clearTimeout(peekOut);
+  peekTimer = peekOut = 0;
+  peeking = null;
+}
+function peekOpen(gi){
+  peekTimer = 0;
+  if (drag) return;
+  peeking = gi;
+  fillCard(DATA.groups[gi]);
+  placeCard(gi);
+}
+function peekClose(){
+  if (peeking === null){ peekReset(); return; }
+  peekReset();
+  if (selected !== null){ fillCard(DATA.groups[selected]); placeCard(selected); }
+  else closeCard();
+}
+function peekEnter(gi){
+  if (!canHover.matches || drag) return;
+  clearTimeout(peekOut); peekOut = 0;
+  if (peeking !== null && peeking !== gi) peekClose();
+  clearTimeout(peekTimer);
+  if (peeking === gi) return;
+  if (selected === gi && card.classList.contains('open')) return;
+  peekTimer = setTimeout(() => peekOpen(gi), PEEK_DELAY);
+}
+function peekLeave(){
+  clearTimeout(peekTimer); peekTimer = 0;
+  if (peeking === null) return;
+  clearTimeout(peekOut);
+  peekOut = setTimeout(peekClose, PEEK_GRACE);
+}
+/* the popover has a link and a copy button in it, so hovering it holds it open */
+card.addEventListener('mouseenter', () => { clearTimeout(peekOut); peekOut = 0; });
+card.addEventListener('mouseleave', peekLeave);
 
 function fillCard(g){
   const nameEl = document.getElementById('cName');
@@ -424,8 +471,9 @@ function copySaid(text){
   copyTimer = setTimeout(resetCopy, 2000);
 }
 btnCopy.addEventListener('click', () => {
-  if (selected === null) return;
-  const key = keyFor(selected);
+  const gi = cardGroup();
+  if (gi === null) return;
+  const key = keyFor(gi);
   if (!key) return;
   const url = location.href.split('#')[0] + '#' + key;
   const legacy = () => {
@@ -516,7 +564,8 @@ if (window.visualViewport){
     requestAnimationFrame(() => {
       pending = false;
       syncScale();
-      if (selected !== null) placeCard(selected);
+      const gi = cardGroup();
+      if (gi !== null) placeCard(gi);
     });
   };
   visualViewport.addEventListener('resize', follow);
@@ -593,6 +642,7 @@ view.addEventListener('pointerdown', e => {
     return;
   }
   moved = false;
+  peekClose();
   drag = {x:e.clientX, y:e.clientY, sl:view.scrollLeft, st:view.scrollTop};
   view.classList.add('dragging');
 });
@@ -620,7 +670,10 @@ function endPointer(e){
 }
 addEventListener('pointerup', endPointer);
 addEventListener('pointercancel', endPointer);
-view.addEventListener('scroll', () => { if (selected !== null) placeCard(selected); });
+view.addEventListener('scroll', () => {
+  const gi = cardGroup();
+  if (gi !== null) placeCard(gi);
+});
 
 function centerOn(gi){
   const r = DATA.groups[gi].rects;

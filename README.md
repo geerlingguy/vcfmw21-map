@@ -22,6 +22,15 @@ And it spat out the index.html file referencing the original table plan PNG (as 
 
 This is more useful for me as I can search by name, description, ID, etc. and also zoom around on the map to find out what is where.
 
+## Hover for details
+
+Resting the mouse on a table for a second opens that exhibitor's details without
+pinning them. Moving to another table closes the popover and starts the second over
+for the new one, and moving off the tables closes it entirely. The popover stays up
+while the pointer is on it, so the exhibitor link and **copy link** are still reachable.
+If an exhibitor was already pinned by clicking, their details come back once the
+preview closes. Touch devices have no hover, so they are unaffected.
+
 ## Maintain exhibitor selections
 
 Clicking a table opens its details and marks it on the map, and the next click
@@ -54,4 +63,4 @@ to the clipboard.
 
 ## AI Disclosure
 
-As stated previously, this page was generated with Claude Opus. Here is the full prompt / chat history: [https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20](https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20).
+As stated previously, this page was generated with Claude Opus. Here is the original full prompt / chat history: [https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20](https://claude.ai/share/fad5ac2a-4f86-4068-88cf-b095a97d3f20).
