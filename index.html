@@ -166,6 +166,128 @@
   .hot.match.hl::after,.hot.match.sel::after{background:rgba(0,166,224,.5)}
   .hot:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
 
+  /* ---------- talks schedule ---------- */
+  :root{
+    --t-bg:#fff;           /* the sheet the grid is printed on */
+    --t-ground:#f0f0ee;    /* the same ground #view gives the map */
+    --t-rule:#e4e4e0;      /* internal rules, as in the exhibitor list */
+    --t-head:var(--paper);
+    --t-band:var(--paper); /* the day divider: ruled, not filled */
+    --t-ink:var(--ink);
+    --t-info:#0a6c8a;      /* a speaker whose name links out in the details */
+    --t-light:var(--muted);/* a speaker with no link */
+    --t-hover:var(--sage);
+    --t-now:#d9331a;
+  }
+  #talks{
+    position:absolute;inset:0;z-index:25;
+    display:flex;flex-direction:column;min-height:0;
+    background:var(--paper);
+  }
+  #talks.hidden{display:none}
+  /* the floating full-screen button parks at the top right of the viewport */
+  #talks .panel-head{border-bottom:1px solid var(--rule);padding-right:46px}
+  .talks-tools{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .talks-tools button{
+    border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;
+    font-family:var(--mono);font-size:12px;line-height:1;padding:6px 9px;
+  }
+  .talks-tools button:hover:not(:disabled){background:var(--sage)}
+  .talks-tools button:active:not(:disabled){background:var(--sage-deep)}
+  .talks-tools button:disabled{color:var(--muted);cursor:default}
+  .talks-tools button:focus-visible{outline:2px solid var(--mark);outline-offset:1px}
+  #talksBody{
+    flex:1 1 auto;overflow:auto;padding:10px;background:var(--t-ground);
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  /* the grid is a sheet on that ground, framed like every other panel here */
+  .tgrid-wrap{position:relative;background:var(--t-bg);border:1px solid var(--rule)}
+  .tgrid{
+    width:100%;border-collapse:collapse;table-layout:fixed;
+    background:var(--t-bg);color:var(--t-ink);
+    font-size:13.5px;line-height:1.5;
+  }
+  .tgrid th,.tgrid td{border:1px solid var(--t-rule);padding:8px;vertical-align:middle}
+  .tgrid thead th{
+    background:var(--t-head);position:sticky;top:0;z-index:2;
+    border-bottom:1px solid var(--rule);
+    font-size:12px;font-weight:600;text-align:left;
+  }
+  .tgrid col.ctime{width:10%}
+  .tgrid col.croom{width:30%}
+  .tgrid .tday td{
+    background:var(--t-band);color:var(--ink);text-align:center;padding:7px 8px;
+    border-top:2px solid var(--rule);border-bottom:2px solid var(--rule);
+  }
+  .tgrid .tday h3{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em}
+  .tgrid .tday .tdate{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .tgrid .ttime{
+    background:var(--paper);
+    font-family:var(--mono);font-size:12px;font-weight:700;
+    text-align:left;white-space:nowrap;
+  }
+  .tgrid .tempty{background:#fafaf8}
+  .tcell{cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .tcell .ttitle{font-weight:700;display:block}
+  .tcell .tspk{color:var(--t-info);font-size:12.5px}
+  .tcell .tspk.plain{color:var(--t-light)}
+  .tcell .troom{display:none}
+  .tgrid .tcell.wide{text-align:center}
+  .tcell:hover{background:var(--t-hover)}
+  .tcell:focus-visible{outline:2px solid var(--mark);outline-offset:-2px}
+  /* the same two marks the map uses: cyan for kept, amber for a search hit */
+  .tcell.sel{background:rgba(0,166,224,.22);box-shadow:inset 0 0 0 2px #00506e}
+  .tcell.sel:hover{background:rgba(0,166,224,.32)}
+  .tcell.match{background:rgba(255,196,0,.42);box-shadow:inset 0 0 0 1px #8a6d00}
+  .tcell.match.sel{background:rgba(0,166,224,.3);box-shadow:inset 0 0 0 2px #00506e}
+  .tcell.dim{opacity:.32}
+  .tcell.sel.dim{opacity:1}      /* a talk you kept stays visible through a search */
+  .tnote{color:var(--t-light);font-style:italic}
+
+  /* current-time rule, drawn over the grid during the show */
+  .tnow{
+    position:absolute;left:0;right:0;height:0;z-index:3;pointer-events:none;
+    border-top:2px solid var(--t-now);
+  }
+  .tnow::before{
+    content:attr(data-label);position:absolute;left:0;top:-9px;
+    background:var(--t-now);color:#fff;
+    font-family:var(--mono);font-size:10px;line-height:1;font-weight:700;
+    padding:3px 5px;white-space:nowrap;
+  }
+
+  /* mobile: the grid becomes the linear schedule vcfmw.org sends phones to */
+  .tlist{position:relative;display:flex;flex-direction:column;gap:8px}
+  .tlday{
+    position:sticky;top:0;z-index:2;
+    background:var(--t-band);color:var(--ink);padding:7px 10px;
+    border-top:2px solid var(--rule);border-bottom:2px solid var(--rule);
+  }
+  .tlday h3{margin:0;font-size:16px;font-weight:700}
+  .tlday .tdate{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .tlist .tcell{scroll-margin-top:56px;
+    display:block;width:100%;text-align:left;font:inherit;
+    background:var(--t-bg);color:var(--t-ink);
+    border:1px solid var(--t-rule);border-left:3px solid #d0d0ca;
+    padding:9px 11px;
+  }
+  .tlist .tcell.sel{border-left-color:#00506e}
+  .tlist .tcell.hide{display:none}
+  .tlist .tmeta{
+    display:flex;gap:8px;align-items:baseline;
+    font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:3px;
+  }
+  .tlist .tcell .troom{display:inline;border:1px solid #d8d8d3;padding:1px 5px}
+  .tlist .ttitle{font-size:14px;line-height:1.3}
+  .tempty-msg{padding:18px 12px;font-size:13px;color:var(--muted);text-align:center}
+
+  /* a live match count on whichever toggle is not currently in front */
+  .toggle[data-hits]::after{
+    content:attr(data-hits);margin-left:5px;padding:1px 4px;
+    background:var(--mark);color:#fff;font-size:10px;font-weight:700;
+  }
+  .toggle[aria-pressed="true"][data-hits]::after{background:var(--paper);color:var(--ink)}
+
   /* ---------- popover ---------- */
   #card{
     position:fixed;z-index:40;width:min(360px,calc(100vw - 24px));
@@ -179,7 +301,12 @@
   #card h2 a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--mark)}
   #card h2 a:hover{background:var(--mark);color:#fff}
   #card .title{margin:7px 0 0;font-size:14px;color:#2c2e29}
+  #card .title a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--mark)}
+  #card .title a:hover{background:var(--mark);color:#fff}
   #card .desc{margin:8px 0 0;font-size:13.5px;color:#33352f;max-height:34vh;overflow:auto}
+  /* abstracts carry their own line breaks, and run to a couple of thousand characters */
+  #card .desc p{margin:0 0 9px;white-space:pre-wrap}
+  #card .desc p:last-child{margin-bottom:0}
   #card .meta{
     border-top:1px solid var(--rule);padding:7px 15px 8px;
     font-family:var(--mono);font-size:11.5px;color:var(--muted);
@@ -245,12 +372,14 @@
     header{gap:8px;padding:8px 12px}
     .grow{display:none}
     header .toggle{order:1}
-    header .find{order:2}
-    header .zoom{order:3}
+    header .zoom{order:2}
+    header .find{order:3}
     header .keepsel{order:4}
     header .selio{order:5}
     header .iconbtn{order:6}
     #hint{display:none}
+    #talksBody{padding:0}
+    .talks-tools button{font-size:14px;padding:9px 11px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -308,7 +437,7 @@
     @page{size:letter landscape;margin:.25in}
     html,body{height:auto;overflow:visible;background:#fff}
     body{display:block}
-    header,main,footer,#card,#chromeBtn{display:none!important}
+    header,main,footer,#card,#chromeBtn,#talks{display:none!important}
     #sheet{position:static;margin:0 auto}
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
@@ -319,16 +448,17 @@
 <header>
   <div class="wordmark"><b>VCF Midwest 21</b> <span>table guide</span></div>
   <button class="toggle" id="listBtn" aria-pressed="false">Exhibitors</button>
+  <button class="toggle" id="talksBtn" aria-pressed="false" hidden>Talks</button>
   <div class="find">
     <input id="q" type="search" placeholder="Search exhibitors or tables" autocomplete="off" spellcheck="false">
     <span class="count" id="qn"></span>
   </div>
   <label class="keepsel" for="keepSel" title="Maintain selected exhibitors when clicking on the map">
-    <input type="checkbox" id="keepSel"><span class="lbl-full">Maintain exhibitor selections</span><span class="lbl-short">Keep selections</span>
+    <input type="checkbox" id="keepSel"><span class="lbl-full">Maintain exhibitor selections</span><span class="lbl-short">Keep</span>
   </label>
   <div class="selio">
     <button id="selExport" title="Export the selected exhibitors" disabled>export</button>
-    <button id="selImport" title="Restore previously selected exhibitors">import</button>
+    <button id="selImport" title="Restore a previously exported selection">import</button>
   </div>
   <input type="file" id="selFile" accept="application/json,.json" hidden>
   <span id="selMsg" role="status" aria-live="polite"></span>
@@ -374,6 +504,19 @@
       <img id="plan" src="21tableplan.png" alt="VCF Midwest 21 table plan">
     </div>
   </div>
+  <section id="talks" class="hidden" aria-label="Talks schedule">
+    <div class="panel-head">
+      <h2 id="talksHead">Talks schedule</h2>
+      <div class="talks-tools">
+        <button id="talksNow" type="button" hidden
+                title="Scroll to the current time">now</button>
+        <button id="selCal" type="button" disabled
+                title="Select a talk first">Export to Calendar</button>
+        <button class="hide" id="talksX">&times;</button>
+      </div>
+    </div>
+    <div id="talksBody"></div>
+  </section>
 </main>
 
 <div id="card" role="dialog" aria-label="Exhibitor details">
@@ -1616,6 +1759,7 @@ function hover(gi, on){
 function listItem(gi){ return document.querySelector('#listBody li[data-g="' + gi + '"]'); }
 function closeCard(){
   selected = null;
+  cardKind = null;
   card.classList.remove('open');
 }
 function deselect(gi){
@@ -1662,6 +1806,16 @@ let peekTimer = 0, peekOut = 0, peeking = null;
 /* whichever group the popover is currently showing, previewed or pinned */
 function cardGroup(){ return peeking !== null ? peeking : selected; }
 
+/* The popover is shared with the talks schedule, so everything that repositions
+   it asks here rather than assuming a map group. */
+let cardKind = null;                     // 'group' | 'talk' | null
+let cardTalk = null;                     // the talk id when cardKind is 'talk'
+function placeCurrentCard(){
+  if (cardKind === 'talk'){ placeTalkCard(); return; }
+  const gi = cardGroup();
+  if (gi !== null) placeCard(gi);
+}
+
 function peekReset(){
   clearTimeout(peekTimer); clearTimeout(peekOut);
   peekTimer = peekOut = 0;
@@ -1700,6 +1854,7 @@ card.addEventListener('mouseenter', () => { clearTimeout(peekOut); peekOut = 0; 
 card.addEventListener('mouseleave', peekLeave);
 
 function fillCard(g){
+  cardKind = 'group';
   const nameEl = document.getElementById('cName');
   nameEl.textContent = '';
   if (g.url){
@@ -1757,9 +1912,14 @@ function copySaid(text){
   copyTimer = setTimeout(resetCopy, 2000);
 }
 btnCopy.addEventListener('click', () => {
-  const gi = cardGroup();
-  if (gi === null) return;
-  const key = keyFor(gi);
+  let key = '';
+  if (cardKind === 'talk'){
+    key = cardTalk ? 'talk-' + cardTalk : '';
+  } else {
+    const gi = cardGroup();
+    if (gi === null) return;
+    key = keyFor(gi);
+  }
   if (!key) return;
   const url = location.href.split('#')[0] + '#' + key;
   const legacy = () => {
@@ -1792,6 +1952,17 @@ function vport(){
 
 /* place the popover next to the group's tables, clamped to what's on screen */
 function placeCard(gi){
+  const rects = hotsByGroup[gi].map(e => e.getBoundingClientRect());
+  placeCardAt({
+    l: Math.min(...rects.map(r => r.left)),
+    r: Math.max(...rects.map(r => r.right)),
+    t: Math.min(...rects.map(r => r.top)),
+    b: Math.max(...rects.map(r => r.bottom))
+  });
+}
+
+/* the placement itself, against any viewport-space box: map tables or a talk cell */
+function placeCardAt(box){
   card.classList.add('open');
   const v = vport();
 
@@ -1816,13 +1987,6 @@ function placeCard(gi){
   card.style.transform = '';
   card.style.right = '';
   card.style.bottom = '';
-  const rects = hotsByGroup[gi].map(e => e.getBoundingClientRect());
-  const box = {
-    l: Math.min(...rects.map(r => r.left)),
-    r: Math.max(...rects.map(r => r.right)),
-    t: Math.min(...rects.map(r => r.top)),
-    b: Math.max(...rects.map(r => r.bottom))
-  };
   const cw = card.offsetWidth, ch = card.offsetHeight, pad = 10;
   const minX = v.x + pad, maxX = v.x + v.w - cw - pad;
   const hdr = topbar.getBoundingClientRect().bottom;   // 0 once the toolbars are hidden
@@ -1852,8 +2016,7 @@ if (window.visualViewport){
       pending = false;
       syncScale();
       placeChrome();
-      const gi = cardGroup();
-      if (gi !== null) placeCard(gi);
+      placeCurrentCard();
     });
   };
   visualViewport.addEventListener('resize', follow);
@@ -1869,7 +2032,11 @@ addEventListener('keydown', e => {
     return;
   }
   if (e.key !== 'Escape') return;
-  if (card.classList.contains('open')){ clearSel(); return; }
+  if (card.classList.contains('open')){
+    if (cardKind === 'talk'){ talkPeekReset(); talkPinned = null; closeCard(); return; }
+    clearSel(); return;
+  }
+  if (talksOpen()){ setTalks(false, true); return; }
   if (!aside.classList.contains('hidden')){ setList(false, true); return; }
   if (chromeOff()){ setChrome(false); return; }
   document.getElementById('q').blur();
@@ -1888,7 +2055,7 @@ function applyZoom(z, ax, ay){
   stage.style.width = (baseW * zoom) + 'px';
   view.scrollLeft = cx * zoom - (ax ?? view.clientWidth / 2);
   view.scrollTop  = cy * zoom - (ay ?? view.clientHeight / 2);
-  if (selected !== null) placeCard(selected);
+  placeCurrentCard();
 }
 let baseW = 0;
 function measure(){
@@ -1969,6 +2136,7 @@ function endPointer(e){
 addEventListener('pointerup', endPointer);
 addEventListener('pointercancel', endPointer);
 view.addEventListener('scroll', () => {
+  if (cardKind !== 'group') return;   // the talks panel scrolls independently
   const gi = cardGroup();
   if (gi !== null) placeCard(gi);
 });
@@ -2038,6 +2206,7 @@ const aside = document.getElementById('list');
 function listOpen(){ return !aside.classList.contains('hidden'); }
 function setList(open, focusBack){
   if (listOpen() === open) return;
+  if (open) setTalks(false);               // one panel in front at a time
   aside.classList.toggle('hidden', !open);
   listBtn.setAttribute('aria-pressed', open);
   if (focusBack) listBtn.focus();
@@ -2067,7 +2236,7 @@ function syncChrome(){
   chromeBtn.setAttribute('aria-label', off ? 'Show the toolbars' : 'Hide the toolbars');
   chromeBtn.title = off ? 'Show the toolbars (f)' : 'Hide the toolbars for more map (f)';
   reflow();                                  // the map just gained or lost that height
-  if (selected !== null) placeCard(selected);
+  placeCurrentCard();
 }
 
 function setChrome(off){
@@ -2082,19 +2251,36 @@ syncChrome();                                // label and placement for whatever
 const q = document.getElementById('q');
 const narrow = matchMedia('(max-width:760px)');
 function setPlaceholder(){
-  q.placeholder = narrow.matches ? 'Search' : 'Search exhibitors or tables';
+  /* read the panel from the DOM: this runs before the talks module's own consts */
+  const onTalks = !document.getElementById('talks').classList.contains('hidden');
+  q.placeholder = narrow.matches ? 'Search'
+    : onTalks ? 'Search talks or speakers' : 'Search exhibitors or tables';
 }
 setPlaceholder();
 narrow.addEventListener('change', setPlaceholder);
 let lastHits = [];
 const qn = document.getElementById('qn');
+/* One box, two surfaces: whichever panel is in front drives the count in the
+   box, and the other one's hit count rides on its toggle as a badge. */
 q.addEventListener('input', () => {
+  refreshSearch();
+  if (q.value.trim() && !talksOpen()) setList(true);
+});
+function refreshSearch(){
   const s = q.value.trim().toLowerCase();
+  const onTalks = talksOpen();
+  const nEx = searchExhibitors(s);
+  const nTk = searchTalks(s);
+  qn.textContent = s ? (onTalks ? nTk : nEx) : '';
+  setHits(talksBtn, s && !onTalks ? nTk : 0);
+  setHits(listBtn,  s &&  onTalks ? nEx : 0);
+}
+function searchExhibitors(s){
   document.querySelectorAll('.hot.match').forEach(e => e.classList.remove('match'));
   if (!s){
-    qn.textContent = ''; lastHits = [];
+    lastHits = [];
     listHead.textContent = 'All exhibitors';
-    renderList(listable); return;
+    renderList(listable); return 0;
   }
   const score = g => {
     const n = g.name.toLowerCase();
@@ -2114,17 +2300,20 @@ q.addEventListener('input', () => {
     a[1].name.toLowerCase().localeCompare(b[1].name.toLowerCase()));
   const ordered = hits.map(p => p[1]);
   ordered.forEach(g => hotsByGroup[g.g].forEach(e => e.classList.add('match')));
-  qn.textContent = ordered.length;
   renderList(ordered);
   lastHits = ordered;
   listHead.textContent = ordered.length
     ? ordered.length + (ordered.length === 1 ? ' match for ' : ' matches for ') + '"' + q.value.trim() + '"'
     : 'No matches';
-  setList(true);
-});
+  return ordered.length;
+}
 q.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   q.blur();                                  // drop the phone keyboard
+  if (talksOpen()){
+    if (talkHits.length) openTalk(talkHits[0].id);
+    return;
+  }
   if (innerWidth <= 760) setList(false);
   const first = listBody.querySelector('li');
   if (first) { select(+first.dataset.g, {center:true, scrollList:true, keep:true}); return; }
@@ -2164,11 +2353,547 @@ function groupFromHash(){
   return groupFromKey(h);
 }
 function selectFromHash(){
+  let h = '';
+  try { h = decodeURIComponent(location.hash.slice(1)); } catch (err) { return; }
+  /* #talk-<id> opens the schedule; it cannot collide with an ID or a table */
+  if (/^talk-/i.test(h)){ openTalk(h.slice(5)); return; }
   const gi = groupFromHash();
   if (gi === null) return;
   select(gi, {center:true, scrollList:true, keep:true});
 }
 addEventListener('hashchange', selectFromHash);
+
+/* ---------- talks schedule ----------
+   The grid is rebuilt from talks.json rather than lifted out of the published
+   page, so one code path serves the desktop grid and the phone list, and the
+   selection survives a re-render. tools/parse_talks.py writes that file. */
+const talksPanel = document.getElementById('talks');
+const talksBtn   = document.getElementById('talksBtn');
+const talksBody  = document.getElementById('talksBody');
+const talksHead  = document.getElementById('talksHead');
+const talksNowBtn = document.getElementById('talksNow');
+const btnCal     = document.getElementById('selCal');
+
+let TALKS = null;                        // the parsed talks.json, once it lands
+const talkById = new Map();
+const talkSel  = new Set();              // talk ids; talks are always multi-select
+let talkPinned = null;                   // the talk whose details were opened by a click
+let talkHits = [];                       // current search hits, best first
+let pendingTalkHash = null;              // a #talk-… that arrived before the data did
+
+/* 20260912T150000Z is what .ics wants; Date.parse wants the extended form */
+function isoUtc(basic){
+  return String(basic).replace(
+    /^(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)Z$/, '$1-$2-$3T$4:$5:$6Z');
+}
+
+function loadTalks(){
+  /*
+  const tag = document.getElementById('talksData');
+  if (tag) return Promise.resolve(JSON.parse(tag.textContent));
+  */
+  return fetch('talks.json').then(r => {
+    if (!r.ok) throw new Error('talks.json ' + r.status);
+    return r.json();
+  });
+}
+loadTalks().then(initTalks).catch(err => {
+  /* No schedule available — the guide stays exactly the map it was. Say why on
+     the console rather than just losing the button: a page opened straight off
+     the filesystem cannot fetch, and the fix is to run --inline. */
+  talksBtn.hidden = true;
+  if (btnCal) btnCal.hidden = true;
+  console.warn('Talks schedule unavailable, hiding the Talks button:', err && err.message
+    ? err.message : err,
+    location.protocol === 'file:'
+      ? '\nOpened from file://, where fetch() is blocked.'
+      : '');
+});
+
+function initTalks(doc){
+  if (!doc || !Array.isArray(doc.talks) || !doc.talks.length) throw new Error('empty schedule');
+  TALKS = doc;
+  doc.talks.forEach(t => {
+    t.startMs = Date.parse(isoUtc(t.startUtc));
+    t.endMs   = Date.parse(isoUtc(t.endUtc));
+    /* one lower-cased haystack per talk, built once: the abstracts are long */
+    t.hay = [t.title, t.speaker, t.room, t.day, t.time, t.abstract, t.bio]
+            .filter(Boolean).join('\n').toLowerCase();
+    talkById.set(t.id, t);
+  });
+  talksBtn.hidden = false;
+  syncSelIO();
+  if (pendingTalkHash){ const id = pendingTalkHash; pendingTalkHash = null; openTalk(id); }
+}
+
+/* ---------- rendering ---------- */
+function shortRoom(room){
+  const m = /^Room\s*\d+/.exec(room || '');
+  return m ? m[0] : (room || '');
+}
+function roomLabel(t){ return t.across ? 'All rooms' : t.room; }
+function dayStamp(day){
+  const when = new Date(day.date + 'T12:00:00Z').toLocaleDateString('en-US',
+    {timeZone:'UTC', month:'long', day:'numeric', year:'numeric'});
+  return day.hours ? when + ' · ' + day.hours : when;
+}
+
+/* the rows of one day: one per distinct start time, cells keyed by room */
+function rowsFor(dayName){
+  const rows = new Map();
+  TALKS.talks.filter(t => t.day === dayName).forEach(t => {
+    let row = rows.get(t.time);
+    if (!row){ row = {time:t.time, startMs:t.startMs, endMs:t.endMs, byRoom:{}}; rows.set(t.time, row); }
+    row.byRoom[t.roomIdx] = t;
+    row.endMs = Math.max(row.endMs, t.endMs);
+  });
+  return Array.from(rows.values()).sort((a, b) => a.startMs - b.startMs);
+}
+
+function talkCell(t, tag){
+  const el = mk(tag, 'tcell' + (t.across ? ' wide' : ''));
+  el.dataset.id = t.id;
+  el.setAttribute('aria-pressed', 'false');
+  if (tag === 'td'){
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+  } else {
+    el.type = 'button';
+    el.classList.add('tmark');             // in the list, the card is its own row
+    el.dataset.day = t.day;
+    el.dataset.start = t.startMs;
+    el.dataset.end = t.endMs;
+  }
+
+  if (tag !== 'td'){                       // the phone card carries its own when/where
+    const meta = mk('span', 'tmeta');
+    meta.appendChild(mk('span', '', t.time));
+    meta.appendChild(mk('span', 'troom', t.across ? 'All rooms' : shortRoom(t.room)));
+    el.appendChild(meta);
+  }
+  el.appendChild(mk('span', 'ttitle' + (t.kind === 'note' ? ' tnote' : ''), t.title));
+  if (t.speaker) el.appendChild(mk('span', 'tspk' + (t.url ? '' : ' plain'), t.speaker));
+  return el;
+}
+
+function buildGrid(){
+  const wrap = mk('div', 'tgrid-wrap');
+  const table = mk('table', 'tgrid');
+  const cols = mk('colgroup');
+  cols.appendChild(mk('col', 'ctime'));
+  TALKS.rooms.forEach(() => cols.appendChild(mk('col', 'croom')));
+  table.appendChild(cols);
+
+  const head = mk('thead'), hrow = mk('tr');
+  hrow.appendChild(mk('th', '', 'Time'));
+  TALKS.rooms.forEach(r => hrow.appendChild(mk('th', '', r)));
+  head.appendChild(hrow);
+  table.appendChild(head);
+
+  const body = mk('tbody');
+  TALKS.days.forEach(day => {
+    const rows = rowsFor(day.name);
+    if (!rows.length) return;
+    const banner = mk('tr', 'tday'), cell = mk('td');
+    cell.colSpan = TALKS.rooms.length + 1;
+    cell.appendChild(mk('h3', '', day.name));
+    cell.appendChild(mk('div', 'tdate', dayStamp(day)));
+    banner.appendChild(cell);
+    body.appendChild(banner);
+
+    rows.forEach(row => {
+      const tr = mk('tr', 'trow tmark');
+      tr.dataset.day = day.name;
+      tr.dataset.start = row.startMs;
+      tr.dataset.end = row.endMs;
+      const th = mk('th', 'ttime', row.time);
+      th.scope = 'row';
+      tr.appendChild(th);
+      let col = 0;
+      while (col < TALKS.rooms.length){
+        const t = row.byRoom[col];
+        if (t){
+          const td = talkCell(t, 'td');
+          if (t.span > 1) td.colSpan = t.span;
+          tr.appendChild(td);
+          col += t.span;                   // advance by the span, not by one
+        } else {
+          tr.appendChild(mk('td', 'tempty'));
+          col++;
+        }
+      }
+      body.appendChild(tr);
+    });
+  });
+  table.appendChild(body);
+  wrap.appendChild(table);
+  return wrap;
+}
+
+/* On a phone a 3-across grid is unreadable, so the same data becomes the linear
+   schedule vcfmw.org sends mobile visitors to. */
+function buildList(){
+  const wrap = mk('div', 'tlist');
+  TALKS.days.forEach(day => {
+    const items = TALKS.talks.filter(t => t.day === day.name)
+      .sort((a, b) => a.startMs - b.startMs || a.roomIdx - b.roomIdx);
+    if (!items.length) return;
+    const head = mk('div', 'tlday');
+    head.appendChild(mk('h3', '', day.name));
+    head.appendChild(mk('div', 'tdate', dayStamp(day)));
+    wrap.appendChild(head);
+    items.forEach(t => wrap.appendChild(talkCell(t, 'button')));
+  });
+  return wrap;
+}
+
+function renderTalks(){
+  if (!TALKS) return;
+  talksBody.textContent = '';
+  talksBody.appendChild(narrow.matches ? buildList() : buildGrid());
+  applyTalkClasses();
+  searchTalks(q.value.trim().toLowerCase());
+  updateNowLine();
+}
+
+function applyTalkClasses(){
+  talksBody.querySelectorAll('.tcell').forEach(el => {
+    const on = talkSel.has(el.dataset.id);
+    el.classList.toggle('sel', on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function talkEl(id){
+  return id ? talksBody.querySelector('.tcell[data-id="' + id + '"]') : null;
+}
+
+/* ---------- the details popover, shared with the map ---------- */
+function fillCardTalk(t){
+  cardKind = 'talk';
+  cardTalk = t.id;
+
+  document.getElementById('cName').textContent = t.title;
+
+  const who = document.getElementById('cTitle');
+  who.textContent = '';
+  if (t.speaker && t.url){
+    const a = document.createElement('a');
+    a.href = t.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = t.speaker;
+    who.appendChild(a);
+  } else if (t.speaker){
+    who.textContent = t.speaker;
+  }
+  who.style.display = t.speaker ? '' : 'none';
+
+  const desc = document.getElementById('cDesc');
+  desc.textContent = '';
+  if (t.abstract) desc.appendChild(mk('p', '', t.abstract));
+  if (t.bio){
+    const p = mk('p');
+    p.appendChild(mk('b', '', 'Bio: '));
+    p.appendChild(document.createTextNode(t.bio));
+    desc.appendChild(p);
+  }
+  desc.style.display = (t.abstract || t.bio) ? '' : 'none';
+
+  const note = document.getElementById('cNote');
+  note.textContent = t.kind === 'note' ? '' : 'End time estimated from the schedule grid.';
+  note.style.display = note.textContent ? '' : 'none';
+
+  resetCopy();
+
+  const meta = document.getElementById('cMeta');
+  meta.textContent = '';
+  const add = (k, v) => {
+    const s = document.createElement('span');
+    s.innerHTML = '<span class="k">' + k + '</span> ';
+    s.appendChild(document.createTextNode(v));
+    meta.appendChild(s);
+  };
+  add('When', t.day + ' ' + t.time);
+  add('Room', roomLabel(t));
+  add('Length', t.durationMin + ' min');
+}
+
+function placeTalkCard(){
+  const el = talkEl(cardTalk);
+  if (!el){ closeCard(); return; }
+  const r = el.getBoundingClientRect();
+  placeCardAt({l: r.left, r: r.right, t: r.top, b: r.bottom});
+}
+
+function showTalk(id){
+  const t = talkById.get(id);
+  if (!t) return;
+  fillCardTalk(t);
+  placeTalkCard();
+}
+
+/* ---------- selection ---------- */
+function toggleTalk(id){
+  talkPeekReset();
+  if (talkSel.has(id)){
+    talkSel.delete(id);
+    if (cardTalk === id){ talkPinned = null; closeCard(); }
+  } else {
+    talkSel.add(id);
+    talkPinned = id;
+    showTalk(id);
+  }
+  applyTalkClasses();
+  syncSelIO();
+}
+
+/* ---------- hover preview, on the map's timings ---------- */
+let talkPeekTimer = 0, talkPeekOut = 0, talkPeeking = null, talkHoverId = null;
+function talkPeekReset(){
+  clearTimeout(talkPeekTimer); clearTimeout(talkPeekOut);
+  talkPeekTimer = talkPeekOut = 0;
+  talkPeeking = talkHoverId = null;
+}
+function talkPeekEnter(id){
+  if (!canHover.matches) return;
+  clearTimeout(talkPeekOut); talkPeekOut = 0;
+  if (talkHoverId === id) return;          // already counting down on this cell
+  talkHoverId = id;
+  clearTimeout(talkPeekTimer);
+  if (talkPeeking !== null && talkPeeking !== id) talkPeekClose();
+  if (cardTalk === id && card.classList.contains('open')) return;
+  talkPeekTimer = setTimeout(() => {
+    talkPeekTimer = 0;
+    talkPeeking = id;
+    showTalk(id);
+  }, PEEK_DELAY);
+}
+function talkPeekClose(){
+  clearTimeout(talkPeekTimer); clearTimeout(talkPeekOut);
+  talkPeekTimer = talkPeekOut = 0;
+  if (talkPeeking === null) return;
+  talkPeeking = null;
+  if (talkPinned) showTalk(talkPinned);    // a pinned talk comes back
+  else closeCard();
+}
+function talkPeekLeave(){
+  clearTimeout(talkPeekTimer); talkPeekTimer = 0;
+  talkHoverId = null;
+  if (talkPeeking === null) return;
+  clearTimeout(talkPeekOut);
+  talkPeekOut = setTimeout(talkPeekClose, PEEK_GRACE);
+}
+/* the popover holds the speaker link and copy button, so hovering it holds it open */
+card.addEventListener('mouseenter', () => { clearTimeout(talkPeekOut); talkPeekOut = 0; });
+card.addEventListener('mouseleave', talkPeekLeave);
+
+talksBody.addEventListener('click', e => {
+  if (e.target.closest('a')) return;
+  const cell = e.target.closest('.tcell');
+  if (!cell){                              // tapping the background puts details away
+    talkPinned = null;
+    talkPeekReset();
+    if (cardKind === 'talk') closeCard();
+    return;
+  }
+  toggleTalk(cell.dataset.id);
+});
+talksBody.addEventListener('mouseover', e => {
+  const cell = e.target.closest('.tcell');
+  if (cell) talkPeekEnter(cell.dataset.id);
+});
+talksBody.addEventListener('mouseout', e => {
+  const cell = e.target.closest('.tcell');
+  if (!cell) return;
+  if (e.relatedTarget && cell.contains(e.relatedTarget)) return;
+  talkPeekLeave();
+});
+talksBody.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const cell = e.target.closest('.tcell');
+  if (!cell || cell.tagName !== 'TD') return;   // the phone cards are real buttons
+  e.preventDefault();
+  toggleTalk(cell.dataset.id);
+});
+talksBody.addEventListener('scroll', () => { if (cardKind === 'talk') placeTalkCard(); });
+
+/* ---------- the current-time rule ---------- */
+/* ?now=<ISO or epoch ms> previews the line outside the show; everything else
+   reads the real clock. Comparisons are in UTC, so the viewer's own timezone
+   never enters into it. */
+let nowOverride = null;
+(function(){
+  const raw = new URLSearchParams(location.search).get('now');
+  if (!raw) return;
+  const ms = /^\d+$/.test(raw) ? +raw : Date.parse(raw);
+  if (!isNaN(ms)) nowOverride = ms;
+})();
+function nowMs(){ return nowOverride === null ? Date.now() : nowOverride; }
+
+const NOW_TICK = 30000;
+let nowTimer = 0;
+function startNowTicks(){
+  stopNowTicks();
+  nowTimer = setInterval(updateNowLine, NOW_TICK);
+}
+function stopNowTicks(){ clearInterval(nowTimer); nowTimer = 0; }
+
+/* the day the clock is inside, measured against that day's own first and last
+   grid entries — not the published floor hours, which the evening talks run past */
+function liveDay(now){
+  if (!TALKS) return null;
+  for (const day of TALKS.days){
+    const items = TALKS.talks.filter(t => t.day === day.name);
+    if (!items.length) continue;
+    const from = Math.min.apply(null, items.map(t => t.startMs));
+    const to   = Math.max.apply(null, items.map(t => t.endMs));
+    if (now >= from && now <= to) return day.name;
+  }
+  return null;
+}
+
+function updateNowLine(){
+  const old = talksBody.querySelector('.tnow');
+  if (old) old.remove();
+  talksNowBtn.hidden = true;
+  if (!TALKS || !talksOpen()) return;
+
+  const now = nowMs();
+  const day = liveDay(now);
+  if (!day) return;
+
+  const host = talksBody.querySelector('.tgrid-wrap') || talksBody.querySelector('.tlist');
+  if (!host) return;
+
+  /* the live day's rows, in document order */
+  const marks = Array.from(host.querySelectorAll('.tmark'))
+    .filter(el => el.dataset.day === day);
+  if (!marks.length) return;
+
+  let at = null;
+  for (let i = 0; i < marks.length; i++){
+    const start = +marks[i].dataset.start;
+    if (start > now) break;
+    at = i;
+  }
+  if (at === null) return;
+
+  const el = marks[at];
+  const start = +el.dataset.start;
+  const next = marks[at + 1] ? +marks[at + 1].dataset.start : +el.dataset.end;
+  const denom = Math.max(1, next - start);
+  const frac = Math.min(1, Math.max(0, (now - start) / denom));
+
+  const hostTop = host.getBoundingClientRect().top;
+  const box = el.getBoundingClientRect();
+  const line = mk('div', 'tnow');
+  line.dataset.label = 'NOW ' + new Date(now).toLocaleTimeString('en-US',
+    {timeZone: TALKS.timezone || 'America/Chicago', hour: 'numeric', minute: '2-digit'});
+  line.style.top = Math.round(box.top - hostTop + box.height * frac) + 'px';
+  host.appendChild(line);
+  talksNowBtn.hidden = false;
+}
+
+function scrollToNow(smooth){
+  const line = talksBody.querySelector('.tnow');
+  if (!line) return;
+  line.scrollIntoView({block: 'center', behavior: smooth ? 'smooth' : 'auto'});
+}
+talksNowBtn.addEventListener('click', () => scrollToNow(true));
+
+/* ---------- opening and closing the panel ---------- */
+function talksOpen(){ return !talksPanel.classList.contains('hidden'); }
+function setTalks(open, focusBack){
+  if (!TALKS && open) return;
+  if (talksOpen() === open) return;
+  talksPanel.classList.toggle('hidden', !open);
+  talksPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+  talksBtn.setAttribute('aria-pressed', open);
+  if (open){
+    setList(false);                        // one panel in front at a time
+    peekReset();
+    if (cardKind === 'group') closeCard();  // leave the map's marks alone
+    renderTalks();
+    startNowTicks();
+    requestAnimationFrame(() => scrollToNow(false));
+  } else {
+    stopNowTicks();
+    talkPeekReset();
+    talkPinned = null;
+    if (cardKind === 'talk') closeCard();
+  }
+  if (focusBack) talksBtn.focus();
+  setPlaceholder();
+  setHint();
+  refreshSearch();
+}
+const MAP_HINT = document.getElementById('hint').textContent;
+function setHint(){
+  document.getElementById('hint').textContent = talksOpen()
+    ? 'Hover a talk for details or click to select it · export the selected talks to your calendar'
+    : MAP_HINT;
+}
+talksBtn.addEventListener('click', () => setTalks(!talksOpen()));
+document.getElementById('talksX').addEventListener('click', () => setTalks(false, true));
+
+/* the grid and the phone list are different renders of the same data */
+narrow.addEventListener('change', () => { if (talksOpen()) renderTalks(); });
+
+/* ---------- search over the schedule ---------- */
+function searchTalks(s){
+  if (!TALKS) return 0;
+  const cells = talksBody.querySelectorAll('.tcell');
+  if (!s){
+    talkHits = [];
+    cells.forEach(el => el.classList.remove('match', 'dim', 'hide'));
+    talksHead.textContent = 'Talks schedule';
+    return 0;
+  }
+  const score = t => {
+    const title = t.title.toLowerCase(), who = (t.speaker || '').toLowerCase();
+    if (who === s) return 0;
+    if (title === s) return 1;
+    if (title.startsWith(s)) return 2;
+    if (title.includes(s)) return 3;
+    if (who.includes(s)) return 4;
+    if ((t.room + ' ' + t.day + ' ' + t.time).toLowerCase().includes(s)) return 5;
+    if (t.hay.includes(s)) return 6;
+    return 99;
+  };
+  const hits = TALKS.talks.map(t => [score(t), t]).filter(p => p[0] < 99);
+  hits.sort((a, b) => a[0] - b[0] ||
+    a[1].startMs - b[1].startMs || a[1].roomIdx - b[1].roomIdx);
+  talkHits = hits.map(p => p[1]);
+
+  /* the grid dims its misses so the schedule's shape survives; the phone list
+     drops them, because there is no shape left to preserve */
+  const keep = new Set(talkHits.map(t => t.id));
+  const phone = narrow.matches;
+  cells.forEach(el => {
+    const on = keep.has(el.dataset.id);
+    el.classList.toggle('match', on);
+    el.classList.toggle('dim', !on && !phone);
+    el.classList.toggle('hide', !on && phone);
+  });
+  const term = '"' + q.value.trim() + '"';
+  talksHead.textContent = talkHits.length
+    ? talkHits.length + (talkHits.length === 1 ? ' talk matches ' : ' talks match ') + term
+    : 'No talks match ' + term;
+  return talkHits.length;
+}
+
+function setHits(btn, n){
+  if (n) btn.dataset.hits = n;
+  else delete btn.dataset.hits;
+}
+
+function openTalk(id){
+  if (!TALKS){ pendingTalkHash = id; return; }
+  if (!talkById.has(id)) return;
+  setTalks(true);
+  const el = talkEl(id);
+  if (el) el.scrollIntoView({block: 'center'});
+  talkPinned = id;
+  showTalk(id);
+}
 
 /* Save/Restore Exhibitors */
 const FORMAT  = 'vcfmw-table-guide-selections';
@@ -2356,10 +3081,21 @@ scheduleSheet();
 function syncSelIO(){
   scheduleSheet();
   if (!btnExport) return;
-  btnExport.disabled = selSet.size === 0;
-  btnExport.title = selSet.size
-    ? 'Export selected exhibitor' + (selSet.size === 1 ? '' : 's')
-    : 'Select an exhibitor first';
+  const n = selSet.size, m = talkSel.size;
+  btnExport.disabled = !n && !m;
+  const parts = [];
+  if (n) parts.push(n + ' exhibitor' + (n === 1 ? '' : 's'));
+  if (m) parts.push(m + ' talk' + (m === 1 ? '' : 's'));
+  btnExport.title = parts.length
+    ? 'Export ' + parts.join(' and ')
+    : 'Select an exhibitor or a talk first';
+  if (btnCal){
+    btnCal.hidden = !TALKS;
+    btnCal.disabled = !m;
+    btnCal.title = m
+      ? 'Add ' + m + ' talk' + (m === 1 ? '' : 's') + ' to your calendar (.ics)'
+      : 'Select a talk first';
+  }
 }
 let msgTimer = 0;
 function say(text){
@@ -2370,22 +3106,31 @@ function say(text){
 syncSelIO();
 
 btnExport.addEventListener('click', () => {
-  if (!selSet.size) return;
+  if (!selSet.size && !talkSel.size) return;
   const picked = Array.from(selSet)
     .map(gi => DATA.groups[gi])
     .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  const talks = Array.from(talkSel).map(id => talkById.get(id)).filter(Boolean)
+    .sort((a, b) => a.startMs - b.startMs || a.roomIdx - b.roomIdx);
+  /* v2 only adds keys. An older build reads `selections` and ignores the rest,
+     and this build still reads a v1 file, so a list moves either way. */
   const doc = {
     format: FORMAT,
-    version: 1,
+    version: 2,
     event: eventName,
     saved: new Date().toISOString(),
     count: picked.length,
-    selections: picked.map(g => ({ name: g.name, tables: g.locs.slice() }))
+    selections: picked.map(g => ({ name: g.name, tables: g.locs.slice() })),
+    talkCount: talks.length,
+    talks: talks.map(t => ({
+      id: t.id, title: t.title, speaker: t.speaker,
+      day: t.day, time: t.time, room: roomLabel(t)
+    }))
   };
   const stamp = new Date().toISOString().slice(0, 10);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(doc, null, 2)], {type:'application/json'}));
-  a.download = eventName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-exhibitors-' + stamp + '.json';
+  a.download = fileStem() + '-selections-' + stamp + '.json';
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -2397,21 +3142,25 @@ selFile.addEventListener('change', () => {
   const f = selFile.files && selFile.files[0];
   if (!f) return;
   const r = new FileReader();
-  r.onerror = () => say("Invalid exhibitors file");
+  r.onerror = () => say('Invalid selections file');
   r.onload = () => {
     let doc;
     try { doc = JSON.parse(r.result); }
-    catch (err) { say('Invalid exhibitor file'); return; }
+    catch (err) { say('Invalid selections file'); return; }
     restore(doc);
   };
   r.readAsText(f);
 });
 
 function restore(doc){
-  let entries = Array.isArray(doc) ? doc
+  const bare = Array.isArray(doc);
+  let entries = bare ? doc
               : (doc && Array.isArray(doc.selections)) ? doc.selections
               : null;
-  if (!entries){ say('Invalid exhibitors file'); return; }
+  /* v1 files have no `talks` key at all, which is what keeps them loading here */
+  const talkEntries = (!bare && doc && Array.isArray(doc.talks)) ? doc.talks : null;
+  if (!entries && !talkEntries){ say('Invalid selections file'); return; }
+  entries = entries || [];
 
   const found = [], missing = [];
   entries.forEach(en => {
@@ -2429,21 +3178,132 @@ function restore(doc){
     else if (found.indexOf(gi) < 0) found.push(gi);
   });
 
-  if (!found.length){ say('No exhibitors from that file are in this guide'); return; }
-
-  clearSel(true);
-  if (found.length > 1) keepSel.checked = true;
-  found.forEach(gi => {
-    selSet.add(gi);
-    hotsByGroup[gi].forEach(e => e.classList.add('sel'));
-    const li = listItem(gi);
-    if (li) li.classList.add('on');
+  /* Talks are matched on id, then on title: an id encodes the day, time and room,
+     so it changes if VCFMW moves a talk, and the title is what survives that. */
+  const tFound = [], tMissing = [];
+  (talkEntries || []).forEach(en => {
+    const id    = typeof en === 'string' ? en : (en && en.id) || '';
+    const title = (en && en.title) || '';
+    let hit = talkById.has(id) ? id : null;
+    if (!hit && title){
+      const want = String(title).trim().toLowerCase();
+      for (const t of talkById.values()){
+        if (t.title.trim().toLowerCase() === want){ hit = t.id; break; }
+      }
+    }
+    if (!hit) tMissing.push(title || id || '?');
+    else if (tFound.indexOf(hit) < 0) tFound.push(hit);
   });
+
+  if (!found.length && !tFound.length){
+    say(talkEntries && !entries.length
+      ? 'No talks from that file are in this schedule'
+      : 'No exhibitors from that file are in this guide');
+    return;
+  }
+
+  if (found.length){
+    clearSel(true);
+    if (found.length > 1) keepSel.checked = true;
+    found.forEach(gi => {
+      selSet.add(gi);
+      hotsByGroup[gi].forEach(e => e.classList.add('sel'));
+      const li = listItem(gi);
+      if (li) li.classList.add('on');
+    });
+  }
+  if (tFound.length){
+    talkSel.clear();
+    tFound.forEach(id => talkSel.add(id));
+    applyTalkClasses();
+  }
   syncSelIO();
-  select(found[0], {center:true, scrollList:true, keep:true});
-  say('Restored ' + found.length + ' exhibitor' + (found.length === 1 ? '' : 's')
-      + (missing.length ? ' — not found: ' + missing.join(', ') : ''));
+  if (found.length) select(found[0], {center:true, scrollList:true, keep:true});
+  else if (tFound.length) openTalk(tFound[0]);
+
+  const parts = [];
+  if (found.length)  parts.push(found.length + ' exhibitor' + (found.length === 1 ? '' : 's'));
+  if (tFound.length) parts.push(tFound.length + ' talk' + (tFound.length === 1 ? '' : 's'));
+  const gone = missing.concat(tMissing);
+  say('Restored ' + parts.join(' and ')
+      + (gone.length ? ' — not found: ' + gone.join(', ') : ''));
 }
+
+/* ---------- calendar export ---------- */
+/* RFC 5545. Times come out of talks.json already in UTC, so nothing here has to
+   know that the show runs on CDT. */
+function icsEsc(v){
+  return String(v)
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n');
+}
+function icsFold(line){
+  const bytes = new TextEncoder().encode(line);
+  if (bytes.length <= 75) return line;
+  const dec = new TextDecoder();
+  const out = [];
+  let i = 0, limit = 75;
+  while (i < bytes.length){
+    let take = Math.min(limit, bytes.length - i);
+    while (take > 1 && i + take < bytes.length && (bytes[i + take] & 0xC0) === 0x80) take--;
+    out.push((out.length ? ' ' : '') + dec.decode(bytes.subarray(i, i + take)));
+    i += take;
+    limit = 74;
+  }
+  return out.join('\r\n');
+}
+function fileStem(){
+  return (eventName || 'vcf-midwest').toLowerCase().replace(/[^a-z0-9]+/g, '-')
+         .replace(/^-|-$/g, '');
+}
+function download(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+btnCal.addEventListener('click', () => {
+  const chosen = Array.from(talkSel).map(id => talkById.get(id))
+    .filter(t => t && t.kind !== 'note')
+    .sort((a, b) => a.startMs - b.startMs || a.roomIdx - b.roomIdx);
+  if (!chosen.length){ say('Select a talk first'); return; }
+
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+  const out = ['BEGIN:VCALENDAR', 'VERSION:2.0',
+               'PRODID:-//vcfmw21-map//Talks//EN',
+               'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+  chosen.forEach(t => {
+    const body = [
+      t.speaker,
+      t.abstract,
+      t.bio ? 'Bio: ' + t.bio : '',
+      t.url,
+      'End time estimated from the published schedule grid.'
+    ].filter(Boolean).join('\n\n');
+    out.push('BEGIN:VEVENT');
+    out.push('UID:' + t.id + '@vcfmw21-map');   // stable, so a re-import updates
+    out.push('DTSTAMP:' + stamp);
+    out.push('DTSTART:' + t.startUtc);
+    out.push('DTEND:' + t.endUtc);
+    out.push('SUMMARY:' + icsEsc(t.title));
+    out.push('LOCATION:' + icsEsc(roomLabel(t) + ', ' + (TALKS.event || eventName)));
+    if (t.url) out.push('URL:' + t.url);
+    out.push('DESCRIPTION:' + icsEsc(body));
+    out.push('END:VEVENT');
+  });
+  out.push('END:VCALENDAR');
+
+  download(new Blob([out.map(icsFold).join('\r\n') + '\r\n'],
+                    {type: 'text/calendar;charset=utf-8'}),
+           fileStem() + '-talks.ics');
+  say('Exported ' + chosen.length + ' talk' + (chosen.length === 1 ? '' : 's') + ' to .ics');
+});
 
 // Everything a #group link touches now exists
 booted = true;
