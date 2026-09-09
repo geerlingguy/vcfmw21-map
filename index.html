@@ -166,6 +166,128 @@
   .hot.match.hl::after,.hot.match.sel::after{background:rgba(0,166,224,.5)}
   .hot:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
 
+  /* ---------- talks schedule ---------- */
+  :root{
+    --t-bg:#fff;           /* the sheet the grid is printed on */
+    --t-ground:#f0f0ee;    /* the same ground #view gives the map */
+    --t-rule:#e4e4e0;      /* internal rules, as in the exhibitor list */
+    --t-head:var(--paper);
+    --t-band:var(--paper); /* the day divider: ruled, not filled */
+    --t-ink:var(--ink);
+    --t-info:#0a6c8a;      /* a speaker whose name links out in the details */
+    --t-light:var(--muted);/* a speaker with no link */
+    --t-hover:var(--sage);
+    --t-now:#d9331a;
+  }
+  #talks{
+    position:absolute;inset:0;z-index:25;
+    display:flex;flex-direction:column;min-height:0;
+    background:var(--paper);
+  }
+  #talks.hidden{display:none}
+  /* the floating full-screen button parks at the top right of the viewport */
+  #talks .panel-head{border-bottom:1px solid var(--rule);padding-right:46px}
+  .talks-tools{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .talks-tools button{
+    border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;
+    font-family:var(--mono);font-size:12px;line-height:1;padding:6px 9px;
+  }
+  .talks-tools button:hover:not(:disabled){background:var(--sage)}
+  .talks-tools button:active:not(:disabled){background:var(--sage-deep)}
+  .talks-tools button:disabled{color:var(--muted);cursor:default}
+  .talks-tools button:focus-visible{outline:2px solid var(--mark);outline-offset:1px}
+  #talksBody{
+    flex:1 1 auto;overflow:auto;padding:10px;background:var(--t-ground);
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  /* the grid is a sheet on that ground, framed like every other panel here */
+  .tgrid-wrap{position:relative;background:var(--t-bg);border:1px solid var(--rule)}
+  .tgrid{
+    width:100%;border-collapse:collapse;table-layout:fixed;
+    background:var(--t-bg);color:var(--t-ink);
+    font-size:13.5px;line-height:1.5;
+  }
+  .tgrid th,.tgrid td{border:1px solid var(--t-rule);padding:8px;vertical-align:middle}
+  .tgrid thead th{
+    background:var(--t-head);position:sticky;top:0;z-index:2;
+    border-bottom:1px solid var(--rule);
+    font-size:12px;font-weight:600;text-align:left;
+  }
+  .tgrid col.ctime{width:10%}
+  .tgrid col.croom{width:30%}
+  .tgrid .tday td{
+    background:var(--t-band);color:var(--ink);text-align:center;padding:7px 8px;
+    border-top:2px solid var(--rule);border-bottom:2px solid var(--rule);
+  }
+  .tgrid .tday h3{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em}
+  .tgrid .tday .tdate{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .tgrid .ttime{
+    background:var(--paper);
+    font-family:var(--mono);font-size:12px;font-weight:700;
+    text-align:left;white-space:nowrap;
+  }
+  .tgrid .tempty{background:#fafaf8}
+  .tcell{cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .tcell .ttitle{font-weight:700;display:block}
+  .tcell .tspk{color:var(--t-info);font-size:12.5px}
+  .tcell .tspk.plain{color:var(--t-light)}
+  .tcell .troom{display:none}
+  .tgrid .tcell.wide{text-align:center}
+  .tcell:hover{background:var(--t-hover)}
+  .tcell:focus-visible{outline:2px solid var(--mark);outline-offset:-2px}
+  /* the same two marks the map uses: cyan for kept, amber for a search hit */
+  .tcell.sel{background:rgba(0,166,224,.22);box-shadow:inset 0 0 0 2px #00506e}
+  .tcell.sel:hover{background:rgba(0,166,224,.32)}
+  .tcell.match{background:rgba(255,196,0,.42);box-shadow:inset 0 0 0 1px #8a6d00}
+  .tcell.match.sel{background:rgba(0,166,224,.3);box-shadow:inset 0 0 0 2px #00506e}
+  .tcell.dim{opacity:.32}
+  .tcell.sel.dim{opacity:1}      /* a talk you kept stays visible through a search */
+  .tnote{color:var(--t-light);font-style:italic}
+
+  /* current-time rule, drawn over the grid during the show */
+  .tnow{
+    position:absolute;left:0;right:0;height:0;z-index:3;pointer-events:none;
+    border-top:2px solid var(--t-now);
+  }
+  .tnow::before{
+    content:attr(data-label);position:absolute;left:0;top:-9px;
+    background:var(--t-now);color:#fff;
+    font-family:var(--mono);font-size:10px;line-height:1;font-weight:700;
+    padding:3px 5px;white-space:nowrap;
+  }
+
+  /* mobile: the grid becomes the linear schedule vcfmw.org sends phones to */
+  .tlist{position:relative;display:flex;flex-direction:column;gap:8px}
+  .tlday{
+    position:sticky;top:0;z-index:2;
+    background:var(--t-band);color:var(--ink);padding:7px 10px;
+    border-top:2px solid var(--rule);border-bottom:2px solid var(--rule);
+  }
+  .tlday h3{margin:0;font-size:16px;font-weight:700}
+  .tlday .tdate{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .tlist .tcell{scroll-margin-top:56px;
+    display:block;width:100%;text-align:left;font:inherit;
+    background:var(--t-bg);color:var(--t-ink);
+    border:1px solid var(--t-rule);border-left:3px solid #d0d0ca;
+    padding:9px 11px;
+  }
+  .tlist .tcell.sel{border-left-color:#00506e}
+  .tlist .tcell.hide{display:none}
+  .tlist .tmeta{
+    display:flex;gap:8px;align-items:baseline;
+    font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:3px;
+  }
+  .tlist .tcell .troom{display:inline;border:1px solid #d8d8d3;padding:1px 5px}
+  .tlist .ttitle{font-size:14px;line-height:1.3}
+  .tempty-msg{padding:18px 12px;font-size:13px;color:var(--muted);text-align:center}
+
+  /* a live match count on whichever toggle is not currently in front */
+  .toggle[data-hits]::after{
+    content:attr(data-hits);margin-left:5px;padding:1px 4px;
+    background:var(--mark);color:#fff;font-size:10px;font-weight:700;
+  }
+  .toggle[aria-pressed="true"][data-hits]::after{background:var(--paper);color:var(--ink)}
+
   /* ---------- popover ---------- */
   #card{
     position:fixed;z-index:40;width:min(360px,calc(100vw - 24px));
@@ -179,7 +301,12 @@
   #card h2 a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--mark)}
   #card h2 a:hover{background:var(--mark);color:#fff}
   #card .title{margin:7px 0 0;font-size:14px;color:#2c2e29}
+  #card .title a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--mark)}
+  #card .title a:hover{background:var(--mark);color:#fff}
   #card .desc{margin:8px 0 0;font-size:13.5px;color:#33352f;max-height:34vh;overflow:auto}
+  /* abstracts carry their own line breaks, and run to a couple of thousand characters */
+  #card .desc p{margin:0 0 9px;white-space:pre-wrap}
+  #card .desc p:last-child{margin-bottom:0}
   #card .meta{
     border-top:1px solid var(--rule);padding:7px 15px 8px;
     font-family:var(--mono);font-size:11.5px;color:var(--muted);
@@ -245,12 +372,14 @@
     header{gap:8px;padding:8px 12px}
     .grow{display:none}
     header .toggle{order:1}
-    header .find{order:2}
-    header .zoom{order:3}
+    header .zoom{order:2}
+    header .find{order:3}
     header .keepsel{order:4}
     header .selio{order:5}
     header .iconbtn{order:6}
     #hint{display:none}
+    #talksBody{padding:0}
+    .talks-tools button{font-size:14px;padding:9px 11px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -308,7 +437,7 @@
     @page{size:letter landscape;margin:.25in}
     html,body{height:auto;overflow:visible;background:#fff}
     body{display:block}
-    header,main,footer,#card,#chromeBtn{display:none!important}
+    header,main,footer,#card,#chromeBtn,#talks{display:none!important}
     #sheet{position:static;margin:0 auto}
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
@@ -319,16 +448,17 @@
 <header>
   <div class="wordmark"><b>VCF Midwest 21</b> <span>table guide</span></div>
   <button class="toggle" id="listBtn" aria-pressed="false">Exhibitors</button>
+  <button class="toggle" id="talksBtn" aria-pressed="false" hidden>Talks</button>
   <div class="find">
     <input id="q" type="search" placeholder="Search exhibitors or tables" autocomplete="off" spellcheck="false">
     <span class="count" id="qn"></span>
   </div>
   <label class="keepsel" for="keepSel" title="Maintain selected exhibitors when clicking on the map">
-    <input type="checkbox" id="keepSel"><span class="lbl-full">Maintain exhibitor selections</span><span class="lbl-short">Keep selections</span>
+    <input type="checkbox" id="keepSel"><span class="lbl-full">Maintain exhibitor selections</span><span class="lbl-short">Keep</span>
   </label>
   <div class="selio">
     <button id="selExport" title="Export the selected exhibitors" disabled>export</button>
-    <button id="selImport" title="Restore previously selected exhibitors">import</button>
+    <button id="selImport" title="Restore a previously exported selection">import</button>
   </div>
   <input type="file" id="selFile" accept="application/json,.json" hidden>
   <span id="selMsg" role="status" aria-live="polite"></span>
@@ -374,6 +504,19 @@
       <img id="plan" src="21tableplan.png" alt="VCF Midwest 21 table plan">
     </div>
   </div>
+  <section id="talks" class="hidden" aria-label="Talks schedule">
+    <div class="panel-head">
+      <h2 id="talksHead">Talks schedule</h2>
+      <div class="talks-tools">
+        <button id="talksNow" type="button" hidden
+                title="Scroll to the current time">now</button>
+        <button id="selCal" type="button" disabled
+                title="Select a talk first">Export to Calendar</button>
+        <button class="hide" id="talksX">&times;</button>
+      </div>
+    </div>
+    <div id="talksBody"></div>
+  </section>
 </main>
 
 <div id="card" role="dialog" aria-label="Exhibitor details">
@@ -391,6 +534,798 @@
 </div>
 
 <div id="sheet" aria-hidden="true"></div>
+
+<!-- talks:begin -->
+<script id="talksData" type="application/json">
+{
+  "format": "vcfmw-talks",
+  "version": 1,
+  "event": "VCF Midwest 21",
+  "source": "https://vcfmw.org/talkschedule",
+  "generated": "2026-09-08T23:41:00Z",
+  "timezone": "America/Chicago",
+  "utcOffset": "-05:00",
+  "rooms": [
+    "Room 1 (Nirvana AB)",
+    "Room 2 (Nirvana C)",
+    "Room 3 (Knowledge)"
+  ],
+  "days": [
+    {
+      "name": "Saturday",
+      "date": "2026-09-12",
+      "hours": "9:00 AM – 8:00 PM"
+    },
+    {
+      "name": "Sunday",
+      "date": "2026-09-13",
+      "hours": "9:00 AM – 3:00 PM"
+    }
+  ],
+  "talks": [
+    {
+      "id": "sat-1000-r1",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "10:00 AM",
+      "start": "2026-09-12T10:00:00",
+      "end": "2026-09-12T11:00:00",
+      "startUtc": "20260912T150000Z",
+      "endUtc": "20260912T160000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "VT100 Deep Dive",
+      "speaker": "Richard Thomson",
+      "url": "https://terminals-wiki.org",
+      "abstract": "The VT100 was not just a dumb terminal; it was a tightly engineered computer with its own CPU, firmware, video system, keyboard protocol, expansion bus, and bag of tricks. This talk takes the VT100 apart from the inside out, showing how DEC built the terminal that became the template for decades of text-mode computing. We will look at the hardware, the firmware, the video timing, the keyboard, the NVRAM setup system, smooth scrolling, double-width and double-height characters, escape sequences, and other details that made the VT100 feel almost magical in 1978. For Commodore 64 fans, think of this as a deep dive into another 8-bit machine, except this one conquered minicomputers, Unix rooms, BBSes, and terminal emulators instead of the living room. Along the way, we will connect the VT100's design choices to things familiar from home computers: memory maps, ROM routines, raster timing, character cells, serial I/O, and firmware hacks. By the end, you will understand why the VT100 became a standard, why it was stranger than it looks, and why a \"terminal\" can be just as interesting as the computer it talks to.",
+      "bio": "Richard Thomson is a vintage computing researcher, collector, and speaker focused on the machines that made interactive computing visible: terminals, graphics systems, workstations, and the software that drove them. He works at NVIDIA on GPU raytracing, but his spare time is spent preserving older display technology through the Computer Graphics Museum in Salt Lake City, the Terminals Wiki, and the Manx online documentation database.",
+      "details": "Abstract: The VT100 was not just a dumb terminal; it was a tightly engineered computer with its own CPU, firmware, video system, keyboard protocol, expansion bus, and bag of tricks. This talk takes the VT100 apart from the inside out, showing how DEC built the terminal that became the template for decades of text-mode computing. We will look at the hardware, the firmware, the video timing, the keyboard, the NVRAM setup system, smooth scrolling, double-width and double-height characters, escape sequences, and other details that made the VT100 feel almost magical in 1978. For Commodore 64 fans, think of this as a deep dive into another 8-bit machine, except this one conquered minicomputers, Unix rooms, BBSes, and terminal emulators instead of the living room. Along the way, we will connect the VT100's design choices to things familiar from home computers: memory maps, ROM routines, raster timing, character cells, serial I/O, and firmware hacks. By the end, you will understand why the VT100 became a standard, why it was stranger than it looks, and why a \"terminal\" can be just as interesting as the computer it talks to.\n\nBio: Richard Thomson is a vintage computing researcher, collector, and speaker focused on the machines that made interactive computing visible: terminals, graphics systems, workstations, and the software that drove them. He works at NVIDIA on GPU raytracing, but his spare time is spent preserving older display technology through the Computer Graphics Museum in Salt Lake City, the Terminals Wiki, and the Manx online documentation database."
+    },
+    {
+      "id": "sat-1030-r2",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "10:30 AM",
+      "start": "2026-09-12T10:30:00",
+      "end": "2026-09-12T11:30:00",
+      "startUtc": "20260912T153000Z",
+      "endUtc": "20260912T163000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "The History of Seequa Computer and the Anatomy of the Chameleon",
+      "speaker": "Matthew Jones & Daniel Balsom",
+      "url": "https://seequa.org/",
+      "abstract": "The Seequa Computer Corporation was a Maryland-based IBM PC-Compatible manufacturer that truly showed how to get an IBM PC for only $1995. They also showed you how to get a CP/M machine for only $1995. The trick? They're the same computer. Although Seequa went head to head with IBM and lost out, they didn't exactly lose the way everyone else did.\n\nThis presentation will focus on the brief history and products from Seequa, along with a technical dive into their flagship product, the Chameleon: Who was capable of switching between an 8088 and Z80 thanks to some slick engineering and custom PAL chips. We will explore how the Chameleon's lost schematics were painstakingly reconstructed, and what cool and unexpected features were discovered along the way.",
+      "bio": "Matthew Jones, also known as McJonesTech online, is a vintage computer preservationist who works on the archival and preservation of the history of computers. Matthew has been reassembling the history of the Seequa Computer Corporation since 2024, and has been recently working on the long term preservation of the Chameleon's hardware alongside Daniel Balsom.\n\nDaniel Balsom - otherwise known as GloriousCow - is a retro-computer enthusiast, emulator author and reverse-engineer.  They fell in love with the Seequa Chameleon after seeing it at VCF Midwest 19, and is now back, schematics in hand, to talk about what makes this system weird and wonderful.",
+      "details": "Abstract: The Seequa Computer Corporation was a Maryland-based IBM PC-Compatible manufacturer that truly showed how to get an IBM PC for only $1995. They also showed you how to get a CP/M machine for only $1995. The trick? They're the same computer. Although Seequa went head to head with IBM and lost out, they didn't exactly lose the way everyone else did.\n\nThis presentation will focus on the brief history and products from Seequa, along with a technical dive into their flagship product, the Chameleon: Who was capable of switching between an 8088 and Z80 thanks to some slick engineering and custom PAL chips. We will explore how the Chameleon's lost schematics were painstakingly reconstructed, and what cool and unexpected features were discovered along the way.\n\nBio: Matthew Jones, also known as McJonesTech online, is a vintage computer preservationist who works on the archival and preservation of the history of computers. Matthew has been reassembling the history of the Seequa Computer Corporation since 2024, and has been recently working on the long term preservation of the Chameleon's hardware alongside Daniel Balsom.\n\nDaniel Balsom - otherwise known as GloriousCow - is a retro-computer enthusiast, emulator author and reverse-engineer.  They fell in love with the Seequa Chameleon after seeing it at VCF Midwest 19, and is now back, schematics in hand, to talk about what makes this system weird and wonderful."
+    },
+    {
+      "id": "sat-1045-r3",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "10:45 AM",
+      "start": "2026-09-12T10:45:00",
+      "end": "2026-09-12T11:45:00",
+      "startUtc": "20260912T154500Z",
+      "endUtc": "20260912T164500Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "The Journey: First Intel 4004 CPU to First Digital Phone to AI - It’s About Humans",
+      "speaker": "GeorgeW",
+      "url": "https://www.ptechpartners.com/george-wang/",
+      "abstract": "George’s career spans 35 years across 7 industries, 2 startups to large enterprise firms National Semiconductor, Motorola, Allstate and State of Illinois implementing new first-time technologies and industry firsts… the common thread and appreciation between innovation and execution still revolves around humans, cultures and leadership styles. Please join in an engaging 2-way dialogue and storytelling around career planning, bumps along the way, and being resilient and flexible in these difficult economic and uncertain times. While computer science degrees, software development, data, cybersecurity and AI has had a prominent uprise let’s not always forget a critical component of success — humans, critical thinking and grit!",
+      "bio": "George is a business technology leader with over 30 years’ experience in startup, mid-sized and Fortune 500 firms. As the Chief Marketing Officer at PTP, George is responsible for strategic growth, client relationships and new business development. George was also a former CIO and COO with industry experiences in 7 different verticals.\n\nGeorge has a BS in Computer Engineering from the University of Illinois Urbana-Champaign and a MS in Engineering Management from National Technological University. In addition to his work with PTP, George also serves on the board of InfraGard Chicago and volunteers for various non-profits including Project Vision Chicago Board, I.C.Stars fundraising committee, Northeastern Illinois University Advisory Board and was a past SIM Chicago Board member.",
+      "details": "Abstract: George’s career spans 35 years across 7 industries, 2 startups to large enterprise firms National Semiconductor, Motorola, Allstate and State of Illinois implementing new first-time technologies and industry firsts… the common thread and appreciation between innovation and execution still revolves around humans, cultures and leadership styles. Please join in an engaging 2-way dialogue and storytelling around career planning, bumps along the way, and being resilient and flexible in these difficult economic and uncertain times. While computer science degrees, software development, data, cybersecurity and AI has had a prominent uprise let’s not always forget a critical component of success — humans, critical thinking and grit!\n\nBio: George is a business technology leader with over 30 years’ experience in startup, mid-sized and Fortune 500 firms. As the Chief Marketing Officer at PTP, George is responsible for strategic growth, client relationships and new business development. George was also a former CIO and COO with industry experiences in 7 different verticals.\n\nGeorge has a BS in Computer Engineering from the University of Illinois Urbana-Champaign and a MS in Engineering Management from National Technological University. In addition to his work with PTP, George also serves on the board of InfraGard Chicago and volunteers for various non-profits including Project Vision Chicago Board, I.C.Stars fundraising committee, Northeastern Illinois University Advisory Board and was a past SIM Chicago Board member."
+    },
+    {
+      "id": "sat-1100-r1",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "11:00 AM",
+      "start": "2026-09-12T11:00:00",
+      "end": "2026-09-12T12:00:00",
+      "startUtc": "20260912T160000Z",
+      "endUtc": "20260912T170000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "Hurricanes Suck: When a Computer Collection Experiences Disaster",
+      "speaker": "Clint Basinger",
+      "url": "https://www.youtube.com/@LGR",
+      "abstract": "My home was hit and half-destroyed by Hurricane Helene in 2024, and this included my vintage computer collection room. I plan to go over the details of the night it happened (including video footage and photos,) the recovery process for both the collection and my own sanity, and the things I've learned and want to share about how to deal with a vintage computer collection when disaster strikes. Discussing all manner of things I'd do differently if I could go back and also things I plan to do differently in the future.",
+      "bio": "",
+      "details": "Abstract: My home was hit and half-destroyed by Hurricane Helene in 2024, and this included my vintage computer collection room. I plan to go over the details of the night it happened (including video footage and photos,) the recovery process for both the collection and my own sanity, and the things I've learned and want to share about how to deal with a vintage computer collection when disaster strikes. Discussing all manner of things I'd do differently if I could go back and also things I plan to do differently in the future."
+    },
+    {
+      "id": "sat-1130-r2",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "11:30 AM",
+      "start": "2026-09-12T11:30:00",
+      "end": "2026-09-12T12:30:00",
+      "startUtc": "20260912T163000Z",
+      "endUtc": "20260912T173000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Genera for the Initiated",
+      "speaker": "phf (philippe fominykh)",
+      "url": "",
+      "abstract": "History of Lisp Machines through a deep dive into Symbolics Genera. An interactive presentation of Lisp Machine functionality, networking, tooling, and lore. Includes forbidden material.",
+      "bio": "Common Lisp consultant and a Lisp Machine enthusiast",
+      "details": "Abstract: History of Lisp Machines through a deep dive into Symbolics Genera. An interactive presentation of Lisp Machine functionality, networking, tooling, and lore. Includes forbidden material.\n\nBio: Common Lisp consultant and a Lisp Machine enthusiast"
+    },
+    {
+      "id": "sat-1145-r3",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "11:45 AM",
+      "start": "2026-09-12T11:45:00",
+      "end": "2026-09-12T12:45:00",
+      "startUtc": "20260912T164500Z",
+      "endUtc": "20260912T174500Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "Creating a new action game for the Apple II",
+      "speaker": "Jav",
+      "url": "https://8bitstuff.com",
+      "abstract": "A presentation and story on how the Sean’s Garage Giveaway game was created.",
+      "bio": "Long time retro enthusiast, UX and graphic designer",
+      "details": "Abstract: A presentation and story on how the Sean’s Garage Giveaway game was created.\n\nBio: Long time retro enthusiast, UX and graphic designer"
+    },
+    {
+      "id": "sat-1200-r1",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "12:00 PM",
+      "start": "2026-09-12T12:00:00",
+      "end": "2026-09-12T13:00:00",
+      "startUtc": "20260912T170000Z",
+      "endUtc": "20260912T180000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "How to trip over yourself moving and opening a tech museum",
+      "speaker": "Brendan",
+      "url": "http://bloopmuseum.org/",
+      "abstract": "It takes a \"special\" kind of person to run a museum about what makes them \"special\". But when there's a will, there's a way, so let's spend an hour unpacking that, shall we?",
+      "bio": "Once upon a time, long ago, but not far from here, Brendan's kindergarten teacher told his mother that he was going to be \"different\". That's really all you need to know...",
+      "details": "Abstract: It takes a \"special\" kind of person to run a museum about what makes them \"special\". But when there's a will, there's a way, so let's spend an hour unpacking that, shall we?\n\nBio: Once upon a time, long ago, but not far from here, Brendan's kindergarten teacher told his mother that he was going to be \"different\". That's really all you need to know..."
+    },
+    {
+      "id": "sat-1230-r2",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "12:30 PM",
+      "start": "2026-09-12T12:30:00",
+      "end": "2026-09-12T13:30:00",
+      "startUtc": "20260912T173000Z",
+      "endUtc": "20260912T183000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Compu-Global-Hyper-Mega-Net: A Retro Internet for Retro Computers",
+      "speaker": "Cursed Silicon",
+      "url": "https://cghmn.org/",
+      "abstract": "Compu-Global-Hyper-Mega-Net is a service designed to allow users with computers from the 80's/90's/00's to connect their old computers together in a way that mimics \"the old internet\"\n\nUnlike existing services such as Protoweb or FrogFind. The network is specifically designed to allow individual users to connect *their* devices to the network to run old software and services interactively. Setting up services such as old websites, game servers and other software from the era.",
+      "bio": "Hi, I'm Cursed Silicon! (or Shaun) I run a small YouTube channel and also talk about old computers on Mastodon. Feel free to say hello if you see me anywhere!",
+      "details": "Abstract: Compu-Global-Hyper-Mega-Net is a service designed to allow users with computers from the 80's/90's/00's to connect their old computers together in a way that mimics \"the old internet\"\n\nUnlike existing services such as Protoweb or FrogFind. The network is specifically designed to allow individual users to connect *their* devices to the network to run old software and services interactively. Setting up services such as old websites, game servers and other software from the era.\n\nBio: Hi, I'm Cursed Silicon! (or Shaun) I run a small YouTube channel and also talk about old computers on Mastodon. Feel free to say hello if you see me anywhere!"
+    },
+    {
+      "id": "sat-1330-all",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "1:30 PM",
+      "start": "2026-09-12T13:30:00",
+      "end": "2026-09-12T14:30:00",
+      "startUtc": "20260912T183000Z",
+      "endUtc": "20260912T193000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 3,
+      "across": true,
+      "room": "Room 1 (Nirvana AB), Room 2 (Nirvana C), Room 3 (Knowledge)",
+      "title": "6th Annual YouTuber Discussion Panel",
+      "speaker": "YouTuber Panel",
+      "url": "",
+      "abstract": "Rumors of our YouTuber Discussion Panel's demise have been greatly exxagerated!  Come join returning friends and some new faces for a roundtable discussion panel about the trials and tribulations of making vintage tech content for YouTube.",
+      "bio": "",
+      "details": "Abstract: Rumors of our YouTuber Discussion Panel's demise have been greatly exxagerated!  Come join returning friends and some new faces for a roundtable discussion panel about the trials and tribulations of making vintage tech content for YouTube."
+    },
+    {
+      "id": "sat-1600-all",
+      "kind": "event",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "4:00 PM",
+      "start": "2026-09-12T16:00:00",
+      "end": "2026-09-12T17:00:00",
+      "startUtc": "20260912T210000Z",
+      "endUtc": "20260912T220000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 3,
+      "across": true,
+      "room": "Room 1 (Nirvana AB), Room 2 (Nirvana C), Room 3 (Knowledge)",
+      "title": "THE FABULOUS VCF MIDWEST FUNDRAISER AUCTION",
+      "speaker": "",
+      "url": "https://auction.vcfmw.org/",
+      "abstract": "",
+      "bio": "",
+      "details": ""
+    },
+    {
+      "id": "sat-1945-r3",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "7:45 PM",
+      "start": "2026-09-12T19:45:00",
+      "end": "2026-09-12T20:45:00",
+      "startUtc": "20260913T004500Z",
+      "endUtc": "20260913T014500Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "Loading… Please Wait: Bringing COMPUTE!'s Gazette Back After 30 Years",
+      "speaker": "Edwin J. Nagle",
+      "url": "https://shop.computesgazette.com/#subscribe",
+      "abstract": "In July 2025, COMPUTE!'s Gazette returned to print after a 30-year absence — and this is the story of how it happened. Edwin \"James\" Nagle, owner of the COMPUTE! trademark and Publisher of the revived magazine, takes attendees behind the scenes of Year One: from acquiring a beloved brand and securing the historical copyrights to the original 1979–1994 COMPUTE! and COMPUTE!'s Gazette archive, to building an editorial team and producing ten plus issues and growing covering the retro scene. The talk covers the business realities of publishing a niche print magazine in 2025, the editorial philosophy of honoring the original run while serving today's retro community, and what the copyright acquisition means for preserving and extending this chapter of computing history. Expect a candid look at the challenges and surprises of Year One — and what's coming next.",
+      "bio": "Edwin \"James\" Nagle is the Editor and Publisher of COMPUTE!'s Gazette Magazine and CEO of RETRO!, a vintage computing and retro gaming retail store in Lakeline Mall in Austin, Texas. He holds the COMPUTE! trademark and operates COMPUTE! Publications, Inc., which relaunched the iconic magazine in July 2025 after a three-decade hiatus. A central focus of his work has been the acquisition and recordation of the historical copyrights to the original COMPUTE! and COMPUTE!'s Gazette archive spanning 1979–1994 — an effort to ensure this foundational era of personal computing history is properly preserved and documented. A lifelong retro computing enthusiast, Edwin is passionate about connecting the golden age of personal computing with the thriving community that keeps it alive today.",
+      "details": "Abstract: In July 2025, COMPUTE!'s Gazette returned to print after a 30-year absence — and this is the story of how it happened. Edwin \"James\" Nagle, owner of the COMPUTE! trademark and Publisher of the revived magazine, takes attendees behind the scenes of Year One: from acquiring a beloved brand and securing the historical copyrights to the original 1979–1994 COMPUTE! and COMPUTE!'s Gazette archive, to building an editorial team and producing ten plus issues and growing covering the retro scene. The talk covers the business realities of publishing a niche print magazine in 2025, the editorial philosophy of honoring the original run while serving today's retro community, and what the copyright acquisition means for preserving and extending this chapter of computing history. Expect a candid look at the challenges and surprises of Year One — and what's coming next.\n\nBio: Edwin \"James\" Nagle is the Editor and Publisher of COMPUTE!'s Gazette Magazine and CEO of RETRO!, a vintage computing and retro gaming retail store in Lakeline Mall in Austin, Texas. He holds the COMPUTE! trademark and operates COMPUTE! Publications, Inc., which relaunched the iconic magazine in July 2025 after a three-decade hiatus. A central focus of his work has been the acquisition and recordation of the historical copyrights to the original COMPUTE! and COMPUTE!'s Gazette archive spanning 1979–1994 — an effort to ensure this foundational era of personal computing history is properly preserved and documented. A lifelong retro computing enthusiast, Edwin is passionate about connecting the golden age of personal computing with the thriving community that keeps it alive today."
+    },
+    {
+      "id": "sat-2000-r1",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "8:00 PM",
+      "start": "2026-09-12T20:00:00",
+      "end": "2026-09-12T21:00:00",
+      "startUtc": "20260913T010000Z",
+      "endUtc": "20260913T020000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "The \"Ugliest\" Apple Macintosh of ALL TIME???",
+      "speaker": "Ron's Computer Videos",
+      "url": "http://ronscompvids.com",
+      "abstract": "Ron from Ron's Computer Videos and Steve from Mac84 discuss the ugliest Macintosh computers of all time AND with the help of the audience will determine once and for all the worst Macintosh that Apple ever produced!",
+      "bio": "Ron is the host of Ron's Computer Videos on YouTube.  Steve is the host of Mac84 on YouTube.",
+      "details": "Abstract: Ron from Ron's Computer Videos and Steve from Mac84 discuss the ugliest Macintosh computers of all time AND with the help of the audience will determine once and for all the worst Macintosh that Apple ever produced!\n\nBio: Ron is the host of Ron's Computer Videos on YouTube.  Steve is the host of Mac84 on YouTube."
+    },
+    {
+      "id": "sat-2030-r2",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "8:30 PM",
+      "start": "2026-09-12T20:30:00",
+      "end": "2026-09-12T21:15:00",
+      "startUtc": "20260913T013000Z",
+      "endUtc": "20260913T021500Z",
+      "durationMin": 45,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "A (Brief) History of Berkeley Systems",
+      "speaker": "Savvy Sage",
+      "url": "https://savvysage.net",
+      "abstract": "A presentation on a (brief) history of Berkeley Systems, a California-based software company that is best known for After Dark and You Don't Know Jack. Here Savvy Sage will be covering the company's origins in accessibility, their first big hit with After Dark, their major entry into the gaming market with You Don't Know Jack, their online gaming service Bezerk, and what happened to them afterwards.",
+      "bio": "Hi! I'm Savvy Sage, where I unleash the uncommon side of history. I run a YouTube channel where I make retrospectives and documentaries, and I also offer creative services for content creators through my website, SavvySage.net.",
+      "details": "Abstract: A presentation on a (brief) history of Berkeley Systems, a California-based software company that is best known for After Dark and You Don't Know Jack. Here Savvy Sage will be covering the company's origins in accessibility, their first big hit with After Dark, their major entry into the gaming market with You Don't Know Jack, their online gaming service Bezerk, and what happened to them afterwards.\n\nBio: Hi! I'm Savvy Sage, where I unleash the uncommon side of history. I run a YouTube channel where I make retrospectives and documentaries, and I also offer creative services for content creators through my website, SavvySage.net."
+    },
+    {
+      "id": "sat-2045-r3",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "8:45 PM",
+      "start": "2026-09-12T20:45:00",
+      "end": "2026-09-12T21:30:00",
+      "startUtc": "20260913T014500Z",
+      "endUtc": "20260913T023000Z",
+      "durationMin": 45,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "Porting Super Star Trek to the Commodore 64 with Claude Code.",
+      "speaker": "Joseph Granneman",
+      "url": "",
+      "abstract": "There are a lot of Super Star Trek clones out for the Commodore 64.  It remains one of my all time favorites but usually at my Linux terminal using the 1978 C version.  How difficult would it be for Claude to convert the original Unix C code to 6502 assembly?  Is it even possible?  After a ton of tokens and Claude using the C64U through an API, we have a custom, complete version of this old classic.  AI can be controversial, but using it to enable the development of new programs for retro computers breaths new life into these timeless computer systems.",
+      "bio": "Joe Granneman is the President and Principal Consultant for the cyber security firm, Illumination Consulting, LTD.  He works in offensive operations, incident response, forensics, and strategic security consulting.  He has been an advid technology enthusiast since the time of the VIC-20 and working in technology ever since.  He is always attached to a keyboard.  This talk is not affiliated in any with Illumination Consulting and represents his personal thoughts and opinions.",
+      "details": "Abstract: There are a lot of Super Star Trek clones out for the Commodore 64.  It remains one of my all time favorites but usually at my Linux terminal using the 1978 C version.  How difficult would it be for Claude to convert the original Unix C code to 6502 assembly?  Is it even possible?  After a ton of tokens and Claude using the C64U through an API, we have a custom, complete version of this old classic.  AI can be controversial, but using it to enable the development of new programs for retro computers breaths new life into these timeless computer systems.\n\nBio: Joe Granneman is the President and Principal Consultant for the cyber security firm, Illumination Consulting, LTD.  He works in offensive operations, incident response, forensics, and strategic security consulting.  He has been an advid technology enthusiast since the time of the VIC-20 and working in technology ever since.  He is always attached to a keyboard.  This talk is not affiliated in any with Illumination Consulting and represents his personal thoughts and opinions."
+    },
+    {
+      "id": "sat-2130-r1",
+      "kind": "talk",
+      "day": "Saturday",
+      "date": "2026-09-12",
+      "time": "9:30 PM",
+      "start": "2026-09-12T21:30:00",
+      "end": "2026-09-12T22:15:00",
+      "startUtc": "20260913T023000Z",
+      "endUtc": "20260913T031500Z",
+      "durationMin": 45,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "CONCERT: Superphone Live; in Chicago",
+      "speaker": "Bea Thurman",
+      "url": "https://superphonerecordings.com",
+      "abstract": "Concert! A new backing video, fresh setlist with new tracks, cooler gimmicks!",
+      "bio": "Bea Thurman is a new wave musician from Columbus Ohio, delivering fresh synthpop right between the ears",
+      "details": "Abstract: Concert! A new backing video, fresh setlist with new tracks, cooler gimmicks!\n\nBio: Bea Thurman is a new wave musician from Columbus Ohio, delivering fresh synthpop right between the ears"
+    },
+    {
+      "id": "sun-0900-r1",
+      "kind": "note",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "9:00 AM",
+      "start": "2026-09-13T09:00:00",
+      "end": "2026-09-13T10:00:00",
+      "startUtc": "20260913T140000Z",
+      "endUtc": "20260913T150000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "SUNDAY OPEN",
+      "speaker": "",
+      "url": "",
+      "abstract": "",
+      "bio": "",
+      "details": ""
+    },
+    {
+      "id": "sun-1000-r1",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "10:00 AM",
+      "start": "2026-09-13T10:00:00",
+      "end": "2026-09-13T11:00:00",
+      "startUtc": "20260913T150000Z",
+      "endUtc": "20260913T160000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "The ENIAC in Context",
+      "speaker": "Brian L. Stuart",
+      "url": "http://cs.drexel.edu/~bls96/eniac/",
+      "abstract": "This year is the 80th anniversay of the unveiling of the ENIAC.  This machine marked a seminal point in the history of computing, coming at a time that coincided with the birth of the field of Computer Science.  In this presentation, we consider the development of the ENIAC.  We examine its characteristics and how it influenced the machines that followed.  Understanding the place of the ENIAC in the larger scope of computer history provides us with a more complete understanding of our field.",
+      "bio": "Brian L. Stuart is a professor of Computer Science at Drexel University.  Having studied Computer Science and Electrical Engineering at the Rose-Hulman Institute of Technology, the University of Notre Dame, and Purdue University, his primary research focus for the past ten years has been the design and programming of the ENIAC.",
+      "details": "Abstract: This year is the 80th anniversay of the unveiling of the ENIAC.  This machine marked a seminal point in the history of computing, coming at a time that coincided with the birth of the field of Computer Science.  In this presentation, we consider the development of the ENIAC.  We examine its characteristics and how it influenced the machines that followed.  Understanding the place of the ENIAC in the larger scope of computer history provides us with a more complete understanding of our field.\n\nBio: Brian L. Stuart is a professor of Computer Science at Drexel University.  Having studied Computer Science and Electrical Engineering at the Rose-Hulman Institute of Technology, the University of Notre Dame, and Purdue University, his primary research focus for the past ten years has been the design and programming of the ENIAC."
+    },
+    {
+      "id": "sun-1015-r2",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "10:15 AM",
+      "start": "2026-09-13T10:15:00",
+      "end": "2026-09-13T11:15:00",
+      "startUtc": "20260913T151500Z",
+      "endUtc": "20260913T161500Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Z80 Renaissance: ROMWBW and the Revival of Retro Computing",
+      "speaker": "Jefferey Wilson",
+      "url": "https://github.com/wwarthen/RomWBW",
+      "abstract": "Join Jeff Wilson for an exploration of ROMWBW, the powerful software ecosystem created by Wayne Warthen that is driving a vibrant revival of Z80-based retro computing.\nThis presentation, developed in collaboration with Wayne Warthen, introduces ROMWBW as a flexible \"micro hypervisor\" that supports a variety of OS images without switching media.\nAttendees will learn about its browser-based support, wide range of hardare platforms such as the RC2014 Homebrew Kits and the S100Computers.com Z180 CPUs and Z80 FPGA Boards, and how to build it into new hardware platforms.\nThis talk covers the rich set of included operating systems - including DRI’s CP/M 2.2/3.0, CDOS, and RDOS; Z-System variants such as ZSDOS, NZ-DOS, ZPM3, and Z3PLUS; QPM, p-System, FreeRTOS, and FUZIX, along with an extensive library of bundled software such as programming tools (Z80ASM, Turbo Pascal, Forth, Cowgol), C compilers (Aztec-C, HI-TECH C), Microsoft compilers (BASIC, Fortran, COBOL), WordStar, and classic games including Colossal Cave and Zork.\nDiscussions on practical resources, GitHub repositories, support forums, and live Q&A will equip enthusiasts to explore, extend, and enjoy the ROMWBW ecosystem.\nWhether you’re restoring vintage S-100 systems or building with modern kits like the RC2014, this session showcases how ROMWBW is keeping the Z80 era alive and thriving.",
+      "bio": "Jeff Wilson is a 70s and 80s Vintage Computing Enthusiast who specializes in S-100 Presevevation, Development, and FPGA work to keep vintage systems and software running.\nVisit him at the S100Projects Table to see a 7-user CompuPro 816 running a multiuser Pacman clone (PakuPaku) where you can also play as a Ghost.",
+      "details": "Abstract: Join Jeff Wilson for an exploration of ROMWBW, the powerful software ecosystem created by Wayne Warthen that is driving a vibrant revival of Z80-based retro computing.\nThis presentation, developed in collaboration with Wayne Warthen, introduces ROMWBW as a flexible \"micro hypervisor\" that supports a variety of OS images without switching media.\nAttendees will learn about its browser-based support, wide range of hardare platforms such as the RC2014 Homebrew Kits and the S100Computers.com Z180 CPUs and Z80 FPGA Boards, and how to build it into new hardware platforms.\nThis talk covers the rich set of included operating systems - including DRI’s CP/M 2.2/3.0, CDOS, and RDOS; Z-System variants such as ZSDOS, NZ-DOS, ZPM3, and Z3PLUS; QPM, p-System, FreeRTOS, and FUZIX, along with an extensive library of bundled software such as programming tools (Z80ASM, Turbo Pascal, Forth, Cowgol), C compilers (Aztec-C, HI-TECH C), Microsoft compilers (BASIC, Fortran, COBOL), WordStar, and classic games including Colossal Cave and Zork.\nDiscussions on practical resources, GitHub repositories, support forums, and live Q&A will equip enthusiasts to explore, extend, and enjoy the ROMWBW ecosystem.\nWhether you’re restoring vintage S-100 systems or building with modern kits like the RC2014, this session showcases how ROMWBW is keeping the Z80 era alive and thriving.\n\nBio: Jeff Wilson is a 70s and 80s Vintage Computing Enthusiast who specializes in S-100 Presevevation, Development, and FPGA work to keep vintage systems and software running.\nVisit him at the S100Projects Table to see a 7-user CompuPro 816 running a multiuser Pacman clone (PakuPaku) where you can also play as a Ghost."
+    },
+    {
+      "id": "sun-1030-r3",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "10:30 AM",
+      "start": "2026-09-13T10:30:00",
+      "end": "2026-09-13T11:30:00",
+      "startUtc": "20260913T153000Z",
+      "endUtc": "20260913T163000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "CAD like it's 2001 - Using Unigraphics on a UNIX Workstation",
+      "speaker": "Xav101",
+      "url": "",
+      "abstract": "Take a look back at CAD software in use on high-end UNIX workstations. This presentation provides a brief history of the Unigraphics CAD software and its role in engineering and manufacturing. We will provide a live demonstration and walkthrough of the capabilities and workflows that made Unigraphics an industry standard. We'll cover creating and editing basic curves and parametric sketches, building and modifying feature-based solid models, as well as more advanced functions like surface modeling, large assembly management, and drafting capabilities.",
+      "bio": "",
+      "details": "Abstract: Take a look back at CAD software in use on high-end UNIX workstations. This presentation provides a brief history of the Unigraphics CAD software and its role in engineering and manufacturing. We will provide a live demonstration and walkthrough of the capabilities and workflows that made Unigraphics an industry standard. We'll cover creating and editing basic curves and parametric sketches, building and modifying feature-based solid models, as well as more advanced functions like surface modeling, large assembly management, and drafting capabilities."
+    },
+    {
+      "id": "sun-1100-r1",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "11:00 AM",
+      "start": "2026-09-13T11:00:00",
+      "end": "2026-09-13T12:00:00",
+      "startUtc": "20260913T160000Z",
+      "endUtc": "20260913T170000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "GameBoy Camera Funtography",
+      "speaker": "Ken Fager",
+      "url": "",
+      "abstract": "The GameBoy Camera introduced many 90's kids to the wonders of digital photography. Limited to four shades the postage stamp sized photos had a big impact on the technology we all carry around in our pocket today. This presentation will introduce people to the camera cartridge, printer, Mad Catz Camera Link (running a Win 95/98 live demo), EF and C mount telephoto adapters, and other hardware mods that make the GameBoy Camera a great camera for modern use. There will also be an SNES with a Super GameBoy broadcasting live to a Zoom meeting. Several demo units will be on hand allowing people to obtain digital copies of any photos they take (original and embiggened).",
+      "bio": "Ken Fager has been shooting with a GameBoy Camera since 1998.",
+      "details": "Abstract: The GameBoy Camera introduced many 90's kids to the wonders of digital photography. Limited to four shades the postage stamp sized photos had a big impact on the technology we all carry around in our pocket today. This presentation will introduce people to the camera cartridge, printer, Mad Catz Camera Link (running a Win 95/98 live demo), EF and C mount telephoto adapters, and other hardware mods that make the GameBoy Camera a great camera for modern use. There will also be an SNES with a Super GameBoy broadcasting live to a Zoom meeting. Several demo units will be on hand allowing people to obtain digital copies of any photos they take (original and embiggened).\n\nBio: Ken Fager has been shooting with a GameBoy Camera since 1998."
+    },
+    {
+      "id": "sun-1115-r2",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "11:15 AM",
+      "start": "2026-09-13T11:15:00",
+      "end": "2026-09-13T12:15:00",
+      "startUtc": "20260913T161500Z",
+      "endUtc": "20260913T171500Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Tiny BASIC: The People's Language for the People's Computer",
+      "speaker": "Eric Floehr",
+      "url": "",
+      "abstract": "When the Altair 8800 arrived in January 1975 with nothing but front-panel switches to program it, the People's Computer Company newsletter responded within two months with \"Build Your Own BASIC,\" and that September Dennis Allison's \"Design Notes for Tiny BASIC\" set out a minimal, education-first BASIC and asked readers to build it and mail their implementations back. So many versions came back that a new journal, Dr. Dobb's, was started just to print them all, and its first issue mailed the same week as Bill Gates's \"Open Letter to Hobbyists.\" Tom Pittman sold his Tiny BASIC for $5 when Microsoft was charging $150 for Altair BASIC, and Li-Chen Wang marked his with \"@COPYLEFT: ALL WRONGS RESERVED,\" a seminal moment in the birth of the open source movement. The center of this talk is Allison's design: most of Tiny BASIC was written not in assembly but in a tiny purpose-built virtual machine (the \"IL\"), so one interpreter could run on the 8080, the 6800, and the 6502. I went through the original 1976 IL instruction by instruction and counted its opcodes, and the talk presents that analysis, plus the tricks, like keyword crunching, that made 2 or 3 KB enough for a working language. Wang's public-domain listing became the seed of commercial BASICs: the TRS-80's Level I BASIC began as Wang's code with \"about 60 percent of it\" torn out, and the Bally Astrocade's BASIC manual credits him by name. Even the chip makers sold it, with RCA offering a Tiny BASIC ROM board for its COSMAC VIP and National Semiconductor building NIBL, its own Tiny BASIC, for the SC/MP. The talk ends with a period game running on an interpreter I'm building from scratch, in ARM assembly, on a $10 board, the same \"every step runs\" way PCC taught in 1975. ARM and BASIC are also intertwined, as the first reference model of the ARM processor was written in BASIC. Tiny BASIC is a complete programming language that one person can understand top to bottom, and no BASIC or assembly experience is needed to follow along.",
+      "bio": "Eric Floehr's first computer came from a hobby store in 1978, when he was nine: an Ohio Scientific Challenger IIP hooked to a little closed-circuit TV monitor and a cassette tape player. He learned BASIC by typing in a game called Planet-X Lander, and never really stopped. He went on to run a BBS on a Commodore 64, get a computer science degree, and build a career in programming (his dad worked at CompuServe, so computing runs in the family). He founded the Central Ohio Python Users Group and ForecastWatch, and previously ran the PyOhio conference. Today he makes videos as the People's Computer Club, a YouTube channel reviving the spirit of the 1970s People's Computer Company: understanding computers by building them from the fundamentals up. He is writing *BASIC From Scratch*, a book that builds a full BASIC interpreter in ARM assembly, one runnable step at a time, starting from the Tiny BASIC tradition this talk covers.",
+      "details": "Abstract: When the Altair 8800 arrived in January 1975 with nothing but front-panel switches to program it, the People's Computer Company newsletter responded within two months with \"Build Your Own BASIC,\" and that September Dennis Allison's \"Design Notes for Tiny BASIC\" set out a minimal, education-first BASIC and asked readers to build it and mail their implementations back. So many versions came back that a new journal, Dr. Dobb's, was started just to print them all, and its first issue mailed the same week as Bill Gates's \"Open Letter to Hobbyists.\" Tom Pittman sold his Tiny BASIC for $5 when Microsoft was charging $150 for Altair BASIC, and Li-Chen Wang marked his with \"@COPYLEFT: ALL WRONGS RESERVED,\" a seminal moment in the birth of the open source movement. The center of this talk is Allison's design: most of Tiny BASIC was written not in assembly but in a tiny purpose-built virtual machine (the \"IL\"), so one interpreter could run on the 8080, the 6800, and the 6502. I went through the original 1976 IL instruction by instruction and counted its opcodes, and the talk presents that analysis, plus the tricks, like keyword crunching, that made 2 or 3 KB enough for a working language. Wang's public-domain listing became the seed of commercial BASICs: the TRS-80's Level I BASIC began as Wang's code with \"about 60 percent of it\" torn out, and the Bally Astrocade's BASIC manual credits him by name. Even the chip makers sold it, with RCA offering a Tiny BASIC ROM board for its COSMAC VIP and National Semiconductor building NIBL, its own Tiny BASIC, for the SC/MP. The talk ends with a period game running on an interpreter I'm building from scratch, in ARM assembly, on a $10 board, the same \"every step runs\" way PCC taught in 1975. ARM and BASIC are also intertwined, as the first reference model of the ARM processor was written in BASIC. Tiny BASIC is a complete programming language that one person can understand top to bottom, and no BASIC or assembly experience is needed to follow along.\n\nBio: Eric Floehr's first computer came from a hobby store in 1978, when he was nine: an Ohio Scientific Challenger IIP hooked to a little closed-circuit TV monitor and a cassette tape player. He learned BASIC by typing in a game called Planet-X Lander, and never really stopped. He went on to run a BBS on a Commodore 64, get a computer science degree, and build a career in programming (his dad worked at CompuServe, so computing runs in the family). He founded the Central Ohio Python Users Group and ForecastWatch, and previously ran the PyOhio conference. Today he makes videos as the People's Computer Club, a YouTube channel reviving the spirit of the 1970s People's Computer Company: understanding computers by building them from the fundamentals up. He is writing *BASIC From Scratch*, a book that builds a full BASIC interpreter in ARM assembly, one runnable step at a time, starting from the Tiny BASIC tradition this talk covers."
+    },
+    {
+      "id": "sun-1130-r3",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "11:30 AM",
+      "start": "2026-09-13T11:30:00",
+      "end": "2026-09-13T12:30:00",
+      "startUtc": "20260913T163000Z",
+      "endUtc": "20260913T173000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "Applesoft's Loaded Dice: The Truth About Randomness on the Apple II, Then and Now",
+      "speaker": "Jeff Robison",
+      "url": "https://codeberg.org/bushnrvn/loaded-dice-vcfmw2026/src/branch/main/README.md",
+      "abstract": "This is a talk meant to explain the history of, problem with, and solution for Applesoft BASIC's broken RND() function. Not merely another workaround, I am proposing a new ROM patch and options for hardware entropy mitigate the need for most RND() workarounds published since 1984. I have attempted to make the content accessible for newcomers and seasoned users alike. I believe this is the best way forward to ensure newcomers to the platform have a seamless experience without needing to understand random number theory,  the Apple II's memory layout, or assembly.",
+      "bio": "Jeff Robison is a Wisconsin native and cybersecurity professional. Outside of work he restores vintage computer hardware and has been collecting microcomputers for twenty years. He currently lives in Tennessee with his wife Chass, two dogs Boomer and Joey, and cat Sophie. This is his first VCFMW talk submission.",
+      "details": "Abstract: This is a talk meant to explain the history of, problem with, and solution for Applesoft BASIC's broken RND() function. Not merely another workaround, I am proposing a new ROM patch and options for hardware entropy mitigate the need for most RND() workarounds published since 1984. I have attempted to make the content accessible for newcomers and seasoned users alike. I believe this is the best way forward to ensure newcomers to the platform have a seamless experience without needing to understand random number theory,  the Apple II's memory layout, or assembly.\n\nBio: Jeff Robison is a Wisconsin native and cybersecurity professional. Outside of work he restores vintage computer hardware and has been collecting microcomputers for twenty years. He currently lives in Tennessee with his wife Chass, two dogs Boomer and Joey, and cat Sophie. This is his first VCFMW talk submission."
+    },
+    {
+      "id": "sun-1200-r1",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "12:00 PM",
+      "start": "2026-09-13T12:00:00",
+      "end": "2026-09-13T13:00:00",
+      "startUtc": "20260913T170000Z",
+      "endUtc": "20260913T180000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "The Origin of Chuck E. Cheese, and the Computer that Made it Possible.",
+      "speaker": "Frank Palazzolo & Evan Allen",
+      "url": "https://github.com/palazzol/CyberamicControlCenter",
+      "abstract": "Nolan Bushnell had the idea to bring Disney-style animatronics to the masses.  In order to do this, the \"Cyberamic Control Center\" was developed specifically to control lifelike robots in hundreds of Chuck E. Cheese restaurants across the nation.  Powered by the ubiquitous 6502, and developed by the same engineering talent that gave Atari it's industry-leading games, this computer outlived the company it was created for, and it has only recently reached it's end of life.\n\nWith the help of fans, archivists, museums, and collectors, we have put together a fairly complete history of this computer, including it's evolution from 1977 to the present day.  With more than our fair share of luck, we have also managed to obtain and restore one to full functionality.  This required decoding tapes, disassembling roms, and fabricating parts where the originals were difficult to obtain.",
+      "bio": "Frank Palazzolo is an Electrical Engineer and Software Developer, with a long history of open-source software contributions and emulator development.  When he was in high school, he worked at a Chuck E. Cheese and interacted directly with the \"Cyberamic Control Center\".\nEvan Allen is an Electrical Engineer who focuses on reverse engineering and recreating rare or otherwise hard to find hardware.  His focus has been on board design but he is branching out into 3D modeling as well.",
+      "details": "Abstract: Nolan Bushnell had the idea to bring Disney-style animatronics to the masses.  In order to do this, the \"Cyberamic Control Center\" was developed specifically to control lifelike robots in hundreds of Chuck E. Cheese restaurants across the nation.  Powered by the ubiquitous 6502, and developed by the same engineering talent that gave Atari it's industry-leading games, this computer outlived the company it was created for, and it has only recently reached it's end of life.\n\nWith the help of fans, archivists, museums, and collectors, we have put together a fairly complete history of this computer, including it's evolution from 1977 to the present day.  With more than our fair share of luck, we have also managed to obtain and restore one to full functionality.  This required decoding tapes, disassembling roms, and fabricating parts where the originals were difficult to obtain.\n\nBio: Frank Palazzolo is an Electrical Engineer and Software Developer, with a long history of open-source software contributions and emulator development.  When he was in high school, he worked at a Chuck E. Cheese and interacted directly with the \"Cyberamic Control Center\".\nEvan Allen is an Electrical Engineer who focuses on reverse engineering and recreating rare or otherwise hard to find hardware.  His focus has been on board design but he is branching out into 3D modeling as well."
+    },
+    {
+      "id": "sun-1215-r2",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "12:15 PM",
+      "start": "2026-09-13T12:15:00",
+      "end": "2026-09-13T13:15:00",
+      "startUtc": "20260913T171500Z",
+      "endUtc": "20260913T181500Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Aristotle: How K - 12 managed their computer labs",
+      "speaker": "Joseph Graham",
+      "url": "",
+      "abstract": "Before the internet came to your house, Apple was already networking schools and offices with an elegant, affordable system built right into the hardware. This session explores LocalTalk and AppleTalk from the ground up — and brings it all to life with a live demo of Airistotle, Apple's network menu software for the Apple II. The centerpiece of the session is a live demo of Airistotle, Apple's network menu software. Airistotle transformed the Apple II into a managed network workstation — presenting users with a clean, administrator-controlled menu of applications and resources rather than a raw ProDOS prompt. It was the solution that made Apple II computer labs actually manageable, and it's a fascinating piece of software history that most Apple II enthusiasts have never seen running. Demo too.",
+      "bio": "Jay is a retired IT professional who dedicated 40 years of his career to the University of Pittsburgh, where he made significant contributions to the field of information technology. Known for his collaborative spirit and problem-solving skills, Jay worked closely with colleagues and students, leaving a lasting impact on the university community.  Outside of his career, Jay enjoys exploring new technologies, staying involved in community projects, and sharing memorable moments with friends and family.",
+      "details": "Abstract: Before the internet came to your house, Apple was already networking schools and offices with an elegant, affordable system built right into the hardware. This session explores LocalTalk and AppleTalk from the ground up — and brings it all to life with a live demo of Airistotle, Apple's network menu software for the Apple II. The centerpiece of the session is a live demo of Airistotle, Apple's network menu software. Airistotle transformed the Apple II into a managed network workstation — presenting users with a clean, administrator-controlled menu of applications and resources rather than a raw ProDOS prompt. It was the solution that made Apple II computer labs actually manageable, and it's a fascinating piece of software history that most Apple II enthusiasts have never seen running. Demo too.\n\nBio: Jay is a retired IT professional who dedicated 40 years of his career to the University of Pittsburgh, where he made significant contributions to the field of information technology. Known for his collaborative spirit and problem-solving skills, Jay worked closely with colleagues and students, leaving a lasting impact on the university community.  Outside of his career, Jay enjoys exploring new technologies, staying involved in community projects, and sharing memorable moments with friends and family."
+    },
+    {
+      "id": "sun-1230-r3",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "12:30 PM",
+      "start": "2026-09-13T12:30:00",
+      "end": "2026-09-13T13:30:00",
+      "startUtc": "20260913T173000Z",
+      "endUtc": "20260913T183000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "The Last Great CP/M Portable: Rescuing a Zorba from Obscurity",
+      "speaker": "Jeff Mocker",
+      "url": "https://www.retroranger.com",
+      "abstract": "In the early 1980s, the portable computer market was rapidly evolving, with systems like the Osborne 1 and Kaypro defining the CP/M era before the IBM PC standard changed everything. One lesser-known machine from this period was the Zorba, a feature-rich CP/M portable that arrived near the end of the 8-bit business computer era.\n\nThis presentation follows the journey of restoring and preserving a Zorba portable computer, including the history of the system, how it compared to its competitors, and why it disappeared despite its impressive design. We will explore the restoration process, troubleshooting challenges, hardware repairs, floppy disk preservation, and bringing a nearly forgotten machine back to life.\n\nAlong the way, we will look at what made CP/M systems important, why many excellent computers were left behind during the transition to IBM compatibility, and what these machines can teach us about a pivotal moment in personal computing history.\n\nThe goal of this presentation is not just to showcase a restored computer, but to celebrate the preservation of the forgotten systems and stories that shaped the evolution of personal computing.",
+      "bio": "Jeff Mocker is the founder of Retro Ranger, where he focuses on restoring, repairing, and preserving vintage computers and classic technology. His work spans a wide range of systems including Commodore, Amiga, Apple, IBM PC compatibles, Atari, Tandy, and other historically significant platforms from the early personal computing era.\n\nThrough Retro Ranger, Jeff documents restorations, repairs, upgrades, and preservation projects with a focus on keeping original hardware alive while making these systems accessible for future generations of enthusiasts. His projects combine electronics repair, historical research, and a passion for exploring the stories behind the machines that shaped personal computing.",
+      "details": "Abstract: In the early 1980s, the portable computer market was rapidly evolving, with systems like the Osborne 1 and Kaypro defining the CP/M era before the IBM PC standard changed everything. One lesser-known machine from this period was the Zorba, a feature-rich CP/M portable that arrived near the end of the 8-bit business computer era.\n\nThis presentation follows the journey of restoring and preserving a Zorba portable computer, including the history of the system, how it compared to its competitors, and why it disappeared despite its impressive design. We will explore the restoration process, troubleshooting challenges, hardware repairs, floppy disk preservation, and bringing a nearly forgotten machine back to life.\n\nAlong the way, we will look at what made CP/M systems important, why many excellent computers were left behind during the transition to IBM compatibility, and what these machines can teach us about a pivotal moment in personal computing history.\n\nThe goal of this presentation is not just to showcase a restored computer, but to celebrate the preservation of the forgotten systems and stories that shaped the evolution of personal computing.\n\nBio: Jeff Mocker is the founder of Retro Ranger, where he focuses on restoring, repairing, and preserving vintage computers and classic technology. His work spans a wide range of systems including Commodore, Amiga, Apple, IBM PC compatibles, Atari, Tandy, and other historically significant platforms from the early personal computing era.\n\nThrough Retro Ranger, Jeff documents restorations, repairs, upgrades, and preservation projects with a focus on keeping original hardware alive while making these systems accessible for future generations of enthusiasts. His projects combine electronics repair, historical research, and a passion for exploring the stories behind the machines that shaped personal computing."
+    },
+    {
+      "id": "sun-1300-r1",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "1:00 PM",
+      "start": "2026-09-13T13:00:00",
+      "end": "2026-09-13T14:00:00",
+      "startUtc": "20260913T180000Z",
+      "endUtc": "20260913T190000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "Early Mac Game Development",
+      "speaker": "John Calhoun",
+      "url": "https://engineersneedart.com",
+      "abstract": "What is the Macintosh Toolbox? What is Quickdraw? How did you write games for the Macintosh Mac in the 1980’s before the web, when documentation was scarce?\n\nI was able to somehow navigate that landscape and knock out a number of sprite-based games. I’ll show you exactly how games were written then—show you how to write games like it’s the 80’s again.\n\nWe’ll talk resources, sample code, game shells, C, emulators, ResEdit… And perhaps I can show you a few almost-ran games from 30 years ago that were never completed. Q&A as time permits.",
+      "bio": "",
+      "details": "Abstract: What is the Macintosh Toolbox? What is Quickdraw? How did you write games for the Macintosh Mac in the 1980’s before the web, when documentation was scarce?\n\nI was able to somehow navigate that landscape and knock out a number of sprite-based games. I’ll show you exactly how games were written then—show you how to write games like it’s the 80’s again.\n\nWe’ll talk resources, sample code, game shells, C, emulators, ResEdit… And perhaps I can show you a few almost-ran games from 30 years ago that were never completed. Q&A as time permits."
+    },
+    {
+      "id": "sun-1315-r2",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "1:15 PM",
+      "start": "2026-09-13T13:15:00",
+      "end": "2026-09-13T13:45:00",
+      "startUtc": "20260913T181500Z",
+      "endUtc": "20260913T184500Z",
+      "durationMin": 30,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Rendering QR Codes in PETSCII",
+      "speaker": "Ethan Dicks",
+      "url": "https://github.com/ethandicks/CBM-QR",
+      "abstract": "PETSCII character graphics have been used for 80x50 \"low res\" graph plotting going back to the early days of the PET, but they are adaptable to a totally modern use: QR Codes.  Come see how to generate loadable QR code screens with Open Source for display on the PET, the VIC-20, the Commodore 64 and more.",
+      "bio": "Ethan Dicks got his start on a 4K PET at the public library and began his career with the soon-to-be-released Commodore 64 before branching out to minicomputers and more.",
+      "details": "Abstract: PETSCII character graphics have been used for 80x50 \"low res\" graph plotting going back to the early days of the PET, but they are adaptable to a totally modern use: QR Codes.  Come see how to generate loadable QR code screens with Open Source for display on the PET, the VIC-20, the Commodore 64 and more.\n\nBio: Ethan Dicks got his start on a 4K PET at the public library and began his career with the soon-to-be-released Commodore 64 before branching out to minicomputers and more."
+    },
+    {
+      "id": "sun-1330-r3",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "1:30 PM",
+      "start": "2026-09-13T13:30:00",
+      "end": "2026-09-13T14:15:00",
+      "startUtc": "20260913T183000Z",
+      "endUtc": "20260913T191500Z",
+      "durationMin": 45,
+      "durationEstimated": true,
+      "roomIdx": 2,
+      "span": 1,
+      "across": false,
+      "room": "Room 3 (Knowledge)",
+      "title": "How I Learned to Love the Clamshell.",
+      "speaker": "Eric Hanchar",
+      "url": "https://www.tumblr.com/regretsretrotech",
+      "abstract": "I propose to do a talk on the (in)famous Dell clamshell desktops.  Part history, part explanation (why they came to be and why am I the idiot that somehow came to be the collector of them) part defense and part why they should have a place in the community as a collectors system (and as an excellent entry point into the hobby.)",
+      "bio": "I am Regret_The_Van, I have been active in the retro computer community since 2018 when I acquired my first retro system, a Gateway 2000 machine from 1993. I attended my first VCFMW in 2019 and exhibited for the first time in 2023.",
+      "details": "Abstract: I propose to do a talk on the (in)famous Dell clamshell desktops.  Part history, part explanation (why they came to be and why am I the idiot that somehow came to be the collector of them) part defense and part why they should have a place in the community as a collectors system (and as an excellent entry point into the hobby.)\n\nBio: I am Regret_The_Van, I have been active in the retro computer community since 2018 when I acquired my first retro system, a Gateway 2000 machine from 1993. I attended my first VCFMW in 2019 and exhibited for the first time in 2023."
+    },
+    {
+      "id": "sun-1345-r2",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "1:45 PM",
+      "start": "2026-09-13T13:45:00",
+      "end": "2026-09-13T14:15:00",
+      "startUtc": "20260913T184500Z",
+      "endUtc": "20260913T191500Z",
+      "durationMin": 30,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Making DOS Games Sing Again: SoftMPU, Open Source and the Roland MT-32",
+      "speaker": "Ben Tayler",
+      "url": "https://bjt42.github.io/softmpu/",
+      "abstract": "Roland’s MT‑32 brought near orchestral sound to late 1980s DOS games, but many titles depended on an intelligent‑mode MPU‑401 interface that only Roland’s original hardware provided. As consumer sound cards dropped that feature, MT‑32 music became inaccessible and genuine MPU‑401 units grew rare and expensive. SoftMPU is a small DOS TSR I wrote to emulate that missing interface through V86 port trapping in memory managers like EMM386 and QEMM, restoring MT‑32 support on real vintage PCs.\n\nThe project began by adapting DOSBox’s MPU‑401 emulation into a standalone TSR built around interrupt handling and careful MIDI timing. Its development has been shaped by open‑source collaboration and extensive compatibility testing on the VOGONS forum, and it has helped spark a small ecosystem of modern retro‑MIDI hardware including the Dreamblaster S2P, mt32‑pi, BulkyMIDI‑32 and HardMPU, all of which rely on SoftMPU to keep classic game music playable.\n\nThe talk includes a live audio demonstration comparing PC speaker, AdLib and MT‑32 output to show exactly what SoftMPU enables, highlighting the dramatic difference the MT‑32 brings to DOS game music and the role SoftMPU plays in making that experience possible on vintage hardware today.",
+      "bio": "Ben Tayler is the creator of SoftMPU, an open-source MPU-401 intelligent-mode emulator for DOS that has become a standard tool in the vintage PC gaming community. A games programmer by profession, he has been involved in the vintage computing scene for over a decade, with a focus on DOS-era audio hardware and MIDI. SoftMPU has been downloaded thousands of times, is discussed extensively on YouTube and various forums, and has spawned a wider ecosystem of compatible hardware and software projects.",
+      "details": "Abstract: Roland’s MT‑32 brought near orchestral sound to late 1980s DOS games, but many titles depended on an intelligent‑mode MPU‑401 interface that only Roland’s original hardware provided. As consumer sound cards dropped that feature, MT‑32 music became inaccessible and genuine MPU‑401 units grew rare and expensive. SoftMPU is a small DOS TSR I wrote to emulate that missing interface through V86 port trapping in memory managers like EMM386 and QEMM, restoring MT‑32 support on real vintage PCs.\n\nThe project began by adapting DOSBox’s MPU‑401 emulation into a standalone TSR built around interrupt handling and careful MIDI timing. Its development has been shaped by open‑source collaboration and extensive compatibility testing on the VOGONS forum, and it has helped spark a small ecosystem of modern retro‑MIDI hardware including the Dreamblaster S2P, mt32‑pi, BulkyMIDI‑32 and HardMPU, all of which rely on SoftMPU to keep classic game music playable.\n\nThe talk includes a live audio demonstration comparing PC speaker, AdLib and MT‑32 output to show exactly what SoftMPU enables, highlighting the dramatic difference the MT‑32 brings to DOS game music and the role SoftMPU plays in making that experience possible on vintage hardware today.\n\nBio: Ben Tayler is the creator of SoftMPU, an open-source MPU-401 intelligent-mode emulator for DOS that has become a standard tool in the vintage PC gaming community. A games programmer by profession, he has been involved in the vintage computing scene for over a decade, with a focus on DOS-era audio hardware and MIDI. SoftMPU has been downloaded thousands of times, is discussed extensively on YouTube and various forums, and has spawned a wider ecosystem of compatible hardware and software projects."
+    },
+    {
+      "id": "sun-1400-r1",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "2:00 PM",
+      "start": "2026-09-13T14:00:00",
+      "end": "2026-09-13T15:00:00",
+      "startUtc": "20260913T190000Z",
+      "endUtc": "20260913T200000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "De-MiSTifying FPGAs - Using them for emulation, restoration and modernization of vintage systems",
+      "speaker": "Tony McDowell",
+      "url": "https://www.linkedin.com/in/tony-mcdowell-934b0737",
+      "abstract": "FPGAs are beginning to come into their own in the hobby market. Many people are familiar with their use in emulation projects like MiSTer but think they are too complication to use in their own projects. In this talk, I will cover emulation as well as other scenarios that include using FPGAs for replacing unavailable parts in restoration, modernization / consolidation, and enhancement. Additionally, I will present simple logic circuits in HDL code and cover the basic workflow. The primary focus of the talk is to lower the barrier-of-entry for FPGA-curious people.",
+      "bio": "Tony McDowell is a veteran of the FPGA industry, having worked for Xilinx (later aquired by AMD), the founder of the FPGA industry, and Rapid Silicon, a short-lived open-source centric FPGA startup. His expertise extends from RTL development and deployment to embedded software design.",
+      "details": "Abstract: FPGAs are beginning to come into their own in the hobby market. Many people are familiar with their use in emulation projects like MiSTer but think they are too complication to use in their own projects. In this talk, I will cover emulation as well as other scenarios that include using FPGAs for replacing unavailable parts in restoration, modernization / consolidation, and enhancement. Additionally, I will present simple logic circuits in HDL code and cover the basic workflow. The primary focus of the talk is to lower the barrier-of-entry for FPGA-curious people.\n\nBio: Tony McDowell is a veteran of the FPGA industry, having worked for Xilinx (later aquired by AMD), the founder of the FPGA industry, and Rapid Silicon, a short-lived open-source centric FPGA startup. His expertise extends from RTL development and deployment to embedded software design."
+    },
+    {
+      "id": "sun-1415-r2",
+      "kind": "talk",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "2:15 PM",
+      "start": "2026-09-13T14:15:00",
+      "end": "2026-09-13T15:00:00",
+      "startUtc": "20260913T191500Z",
+      "endUtc": "20260913T200000Z",
+      "durationMin": 45,
+      "durationEstimated": true,
+      "roomIdx": 1,
+      "span": 1,
+      "across": false,
+      "room": "Room 2 (Nirvana C)",
+      "title": "Getting into Vintage Computers on a Budget",
+      "speaker": "LowSpecActionSquad",
+      "url": "https://www.youtube.com/@LowSpecActionSquad",
+      "abstract": "A lot of folks, especially younger ones, tend to watch the wonderful videos creators in our community put out there, and get inspired to join this amazing hobby we have. Unfortunately, they often get discouraged when they go to google and try to by popular vintage pieces and parts, only to find skyrocketing prices on popular auction websites. As someone who specializes in vintage computers on a budget, I wanted to chime in with my two cents, and hopefully provide folks some avenues to try when getting into the hobby!",
+      "bio": "My name is Matt, I run the YouTube channel LowSpecActionSquad, and I enjoy bringing e-waste back to life!",
+      "details": "Abstract: A lot of folks, especially younger ones, tend to watch the wonderful videos creators in our community put out there, and get inspired to join this amazing hobby we have. Unfortunately, they often get discouraged when they go to google and try to by popular vintage pieces and parts, only to find skyrocketing prices on popular auction websites. As someone who specializes in vintage computers on a budget, I wanted to chime in with my two cents, and hopefully provide folks some avenues to try when getting into the hobby!\n\nBio: My name is Matt, I run the YouTube channel LowSpecActionSquad, and I enjoy bringing e-waste back to life!"
+    },
+    {
+      "id": "sun-1500-r1",
+      "kind": "note",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "3:00 PM",
+      "start": "2026-09-13T15:00:00",
+      "end": "2026-09-13T16:00:00",
+      "startUtc": "20260913T200000Z",
+      "endUtc": "20260913T210000Z",
+      "durationMin": 60,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "PACK UP TALK HALLS",
+      "speaker": "",
+      "url": "",
+      "abstract": "",
+      "bio": "",
+      "details": ""
+    },
+    {
+      "id": "sun-1600-r1",
+      "kind": "note",
+      "day": "Sunday",
+      "date": "2026-09-13",
+      "time": "4:00 PM",
+      "start": "2026-09-13T16:00:00",
+      "end": "2026-09-13T16:45:00",
+      "startUtc": "20260913T210000Z",
+      "endUtc": "20260913T214500Z",
+      "durationMin": 45,
+      "durationEstimated": true,
+      "roomIdx": 0,
+      "span": 1,
+      "across": false,
+      "room": "Room 1 (Nirvana AB)",
+      "title": "SHOW CLOSE",
+      "speaker": "",
+      "url": "",
+      "abstract": "",
+      "bio": "",
+      "details": ""
+    }
+  ]
+}
+</script>
+<!-- talks:end -->
 
 <footer>
   <div class="links">
@@ -453,6 +1388,7 @@ function hover(gi, on){
 function listItem(gi){ return document.querySelector('#listBody li[data-g="' + gi + '"]'); }
 function closeCard(){
   selected = null;
+  cardKind = null;
   card.classList.remove('open');
 }
 function deselect(gi){
@@ -499,6 +1435,16 @@ let peekTimer = 0, peekOut = 0, peeking = null;
 /* whichever group the popover is currently showing, previewed or pinned */
 function cardGroup(){ return peeking !== null ? peeking : selected; }
 
+/* The popover is shared with the talks schedule, so everything that repositions
+   it asks here rather than assuming a map group. */
+let cardKind = null;                     // 'group' | 'talk' | null
+let cardTalk = null;                     // the talk id when cardKind is 'talk'
+function placeCurrentCard(){
+  if (cardKind === 'talk'){ placeTalkCard(); return; }
+  const gi = cardGroup();
+  if (gi !== null) placeCard(gi);
+}
+
 function peekReset(){
   clearTimeout(peekTimer); clearTimeout(peekOut);
   peekTimer = peekOut = 0;
@@ -537,6 +1483,7 @@ card.addEventListener('mouseenter', () => { clearTimeout(peekOut); peekOut = 0; 
 card.addEventListener('mouseleave', peekLeave);
 
 function fillCard(g){
+  cardKind = 'group';
   const nameEl = document.getElementById('cName');
   nameEl.textContent = '';
   if (g.url){
@@ -594,9 +1541,14 @@ function copySaid(text){
   copyTimer = setTimeout(resetCopy, 2000);
 }
 btnCopy.addEventListener('click', () => {
-  const gi = cardGroup();
-  if (gi === null) return;
-  const key = keyFor(gi);
+  let key = '';
+  if (cardKind === 'talk'){
+    key = cardTalk ? 'talk-' + cardTalk : '';
+  } else {
+    const gi = cardGroup();
+    if (gi === null) return;
+    key = keyFor(gi);
+  }
   if (!key) return;
   const url = location.href.split('#')[0] + '#' + key;
   const legacy = () => {
@@ -629,6 +1581,17 @@ function vport(){
 
 /* place the popover next to the group's tables, clamped to what's on screen */
 function placeCard(gi){
+  const rects = hotsByGroup[gi].map(e => e.getBoundingClientRect());
+  placeCardAt({
+    l: Math.min(...rects.map(r => r.left)),
+    r: Math.max(...rects.map(r => r.right)),
+    t: Math.min(...rects.map(r => r.top)),
+    b: Math.max(...rects.map(r => r.bottom))
+  });
+}
+
+/* the placement itself, against any viewport-space box: map tables or a talk cell */
+function placeCardAt(box){
   card.classList.add('open');
   const v = vport();
 
@@ -653,13 +1616,6 @@ function placeCard(gi){
   card.style.transform = '';
   card.style.right = '';
   card.style.bottom = '';
-  const rects = hotsByGroup[gi].map(e => e.getBoundingClientRect());
-  const box = {
-    l: Math.min(...rects.map(r => r.left)),
-    r: Math.max(...rects.map(r => r.right)),
-    t: Math.min(...rects.map(r => r.top)),
-    b: Math.max(...rects.map(r => r.bottom))
-  };
   const cw = card.offsetWidth, ch = card.offsetHeight, pad = 10;
   const minX = v.x + pad, maxX = v.x + v.w - cw - pad;
   const hdr = topbar.getBoundingClientRect().bottom;   // 0 once the toolbars are hidden
@@ -689,8 +1645,7 @@ if (window.visualViewport){
       pending = false;
       syncScale();
       placeChrome();
-      const gi = cardGroup();
-      if (gi !== null) placeCard(gi);
+      placeCurrentCard();
     });
   };
   visualViewport.addEventListener('resize', follow);
@@ -706,7 +1661,11 @@ addEventListener('keydown', e => {
     return;
   }
   if (e.key !== 'Escape') return;
-  if (card.classList.contains('open')){ clearSel(); return; }
+  if (card.classList.contains('open')){
+    if (cardKind === 'talk'){ talkPeekReset(); talkPinned = null; closeCard(); return; }
+    clearSel(); return;
+  }
+  if (talksOpen()){ setTalks(false, true); return; }
   if (!aside.classList.contains('hidden')){ setList(false, true); return; }
   if (chromeOff()){ setChrome(false); return; }
   document.getElementById('q').blur();
@@ -725,7 +1684,7 @@ function applyZoom(z, ax, ay){
   stage.style.width = (baseW * zoom) + 'px';
   view.scrollLeft = cx * zoom - (ax ?? view.clientWidth / 2);
   view.scrollTop  = cy * zoom - (ay ?? view.clientHeight / 2);
-  if (selected !== null) placeCard(selected);
+  placeCurrentCard();
 }
 let baseW = 0;
 function measure(){
@@ -806,6 +1765,7 @@ function endPointer(e){
 addEventListener('pointerup', endPointer);
 addEventListener('pointercancel', endPointer);
 view.addEventListener('scroll', () => {
+  if (cardKind !== 'group') return;   // the talks panel scrolls independently
   const gi = cardGroup();
   if (gi !== null) placeCard(gi);
 });
@@ -875,6 +1835,7 @@ const aside = document.getElementById('list');
 function listOpen(){ return !aside.classList.contains('hidden'); }
 function setList(open, focusBack){
   if (listOpen() === open) return;
+  if (open) setTalks(false);               // one panel in front at a time
   aside.classList.toggle('hidden', !open);
   listBtn.setAttribute('aria-pressed', open);
   if (focusBack) listBtn.focus();
@@ -904,7 +1865,7 @@ function syncChrome(){
   chromeBtn.setAttribute('aria-label', off ? 'Show the toolbars' : 'Hide the toolbars');
   chromeBtn.title = off ? 'Show the toolbars (f)' : 'Hide the toolbars for more map (f)';
   reflow();                                  // the map just gained or lost that height
-  if (selected !== null) placeCard(selected);
+  placeCurrentCard();
 }
 
 function setChrome(off){
@@ -919,19 +1880,36 @@ syncChrome();                                // label and placement for whatever
 const q = document.getElementById('q');
 const narrow = matchMedia('(max-width:760px)');
 function setPlaceholder(){
-  q.placeholder = narrow.matches ? 'Search' : 'Search exhibitors or tables';
+  /* read the panel from the DOM: this runs before the talks module's own consts */
+  const onTalks = !document.getElementById('talks').classList.contains('hidden');
+  q.placeholder = narrow.matches ? 'Search'
+    : onTalks ? 'Search talks or speakers' : 'Search exhibitors or tables';
 }
 setPlaceholder();
 narrow.addEventListener('change', setPlaceholder);
 let lastHits = [];
 const qn = document.getElementById('qn');
+/* One box, two surfaces: whichever panel is in front drives the count in the
+   box, and the other one's hit count rides on its toggle as a badge. */
 q.addEventListener('input', () => {
+  refreshSearch();
+  if (q.value.trim() && !talksOpen()) setList(true);
+});
+function refreshSearch(){
   const s = q.value.trim().toLowerCase();
+  const onTalks = talksOpen();
+  const nEx = searchExhibitors(s);
+  const nTk = searchTalks(s);
+  qn.textContent = s ? (onTalks ? nTk : nEx) : '';
+  setHits(talksBtn, s && !onTalks ? nTk : 0);
+  setHits(listBtn,  s &&  onTalks ? nEx : 0);
+}
+function searchExhibitors(s){
   document.querySelectorAll('.hot.match').forEach(e => e.classList.remove('match'));
   if (!s){
-    qn.textContent = ''; lastHits = [];
+    lastHits = [];
     listHead.textContent = 'All exhibitors';
-    renderList(listable); return;
+    renderList(listable); return 0;
   }
   const score = g => {
     const n = g.name.toLowerCase();
@@ -951,17 +1929,20 @@ q.addEventListener('input', () => {
     a[1].name.toLowerCase().localeCompare(b[1].name.toLowerCase()));
   const ordered = hits.map(p => p[1]);
   ordered.forEach(g => hotsByGroup[g.g].forEach(e => e.classList.add('match')));
-  qn.textContent = ordered.length;
   renderList(ordered);
   lastHits = ordered;
   listHead.textContent = ordered.length
     ? ordered.length + (ordered.length === 1 ? ' match for ' : ' matches for ') + '"' + q.value.trim() + '"'
     : 'No matches';
-  setList(true);
-});
+  return ordered.length;
+}
 q.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   q.blur();                                  // drop the phone keyboard
+  if (talksOpen()){
+    if (talkHits.length) openTalk(talkHits[0].id);
+    return;
+  }
   if (innerWidth <= 760) setList(false);
   const first = listBody.querySelector('li');
   if (first) { select(+first.dataset.g, {center:true, scrollList:true, keep:true}); return; }
@@ -1001,11 +1982,545 @@ function groupFromHash(){
   return groupFromKey(h);
 }
 function selectFromHash(){
+  let h = '';
+  try { h = decodeURIComponent(location.hash.slice(1)); } catch (err) { return; }
+  /* #talk-<id> opens the schedule; it cannot collide with an ID or a table */
+  if (/^talk-/i.test(h)){ openTalk(h.slice(5)); return; }
   const gi = groupFromHash();
   if (gi === null) return;
   select(gi, {center:true, scrollList:true, keep:true});
 }
 addEventListener('hashchange', selectFromHash);
+
+/* ---------- talks schedule ----------
+   The grid is rebuilt from talks.json rather than lifted out of the published
+   page, so one code path serves the desktop grid and the phone list, and the
+   selection survives a re-render. tools/parse_talks.py writes that file. */
+const talksPanel = document.getElementById('talks');
+const talksBtn   = document.getElementById('talksBtn');
+const talksBody  = document.getElementById('talksBody');
+const talksHead  = document.getElementById('talksHead');
+const talksNowBtn = document.getElementById('talksNow');
+const btnCal     = document.getElementById('selCal');
+
+let TALKS = null;                        // the parsed talks.json, once it lands
+const talkById = new Map();
+const talkSel  = new Set();              // talk ids; talks are always multi-select
+let talkPinned = null;                   // the talk whose details were opened by a click
+let talkHits = [];                       // current search hits, best first
+let pendingTalkHash = null;              // a #talk-… that arrived before the data did
+
+/* 20260912T150000Z is what .ics wants; Date.parse wants the extended form */
+function isoUtc(basic){
+  return String(basic).replace(
+    /^(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)Z$/, '$1-$2-$3T$4:$5:$6Z');
+}
+
+function loadTalks(){
+  const tag = document.getElementById('talksData');
+  if (tag) return Promise.resolve(JSON.parse(tag.textContent));
+  return fetch('talks.json').then(r => {
+    if (!r.ok) throw new Error('talks.json ' + r.status);
+    return r.json();
+  });
+}
+loadTalks().then(initTalks).catch(err => {
+  /* No schedule available — the guide stays exactly the map it was. Say why on
+     the console rather than just losing the button: a page opened straight off
+     the filesystem cannot fetch, and the fix is to run --inline. */
+  talksBtn.hidden = true;
+  if (btnCal) btnCal.hidden = true;
+  console.warn('Talks schedule unavailable, hiding the Talks button:', err && err.message
+    ? err.message : err,
+    location.protocol === 'file:'
+      ? '\nOpened from file://, where fetch() is blocked.'
+      : '');
+});
+
+function initTalks(doc){
+  if (!doc || !Array.isArray(doc.talks) || !doc.talks.length) throw new Error('empty schedule');
+  TALKS = doc;
+  doc.talks.forEach(t => {
+    t.startMs = Date.parse(isoUtc(t.startUtc));
+    t.endMs   = Date.parse(isoUtc(t.endUtc));
+    /* one lower-cased haystack per talk, built once: the abstracts are long */
+    t.hay = [t.title, t.speaker, t.room, t.day, t.time, t.abstract, t.bio]
+            .filter(Boolean).join('\n').toLowerCase();
+    talkById.set(t.id, t);
+  });
+  talksBtn.hidden = false;
+  syncSelIO();
+  if (pendingTalkHash){ const id = pendingTalkHash; pendingTalkHash = null; openTalk(id); }
+}
+
+/* ---------- rendering ---------- */
+function shortRoom(room){
+  const m = /^Room\s*\d+/.exec(room || '');
+  return m ? m[0] : (room || '');
+}
+function roomLabel(t){ return t.across ? 'All rooms' : t.room; }
+function dayStamp(day){
+  const when = new Date(day.date + 'T12:00:00Z').toLocaleDateString('en-US',
+    {timeZone:'UTC', month:'long', day:'numeric', year:'numeric'});
+  return day.hours ? when + ' · ' + day.hours : when;
+}
+
+/* the rows of one day: one per distinct start time, cells keyed by room */
+function rowsFor(dayName){
+  const rows = new Map();
+  TALKS.talks.filter(t => t.day === dayName).forEach(t => {
+    let row = rows.get(t.time);
+    if (!row){ row = {time:t.time, startMs:t.startMs, endMs:t.endMs, byRoom:{}}; rows.set(t.time, row); }
+    row.byRoom[t.roomIdx] = t;
+    row.endMs = Math.max(row.endMs, t.endMs);
+  });
+  return Array.from(rows.values()).sort((a, b) => a.startMs - b.startMs);
+}
+
+function talkCell(t, tag){
+  const el = mk(tag, 'tcell' + (t.across ? ' wide' : ''));
+  el.dataset.id = t.id;
+  el.setAttribute('aria-pressed', 'false');
+  if (tag === 'td'){
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+  } else {
+    el.type = 'button';
+    el.classList.add('tmark');             // in the list, the card is its own row
+    el.dataset.day = t.day;
+    el.dataset.start = t.startMs;
+    el.dataset.end = t.endMs;
+  }
+
+  if (tag !== 'td'){                       // the phone card carries its own when/where
+    const meta = mk('span', 'tmeta');
+    meta.appendChild(mk('span', '', t.time));
+    meta.appendChild(mk('span', 'troom', t.across ? 'All rooms' : shortRoom(t.room)));
+    el.appendChild(meta);
+  }
+  el.appendChild(mk('span', 'ttitle' + (t.kind === 'note' ? ' tnote' : ''), t.title));
+  if (t.speaker) el.appendChild(mk('span', 'tspk' + (t.url ? '' : ' plain'), t.speaker));
+  return el;
+}
+
+function buildGrid(){
+  const wrap = mk('div', 'tgrid-wrap');
+  const table = mk('table', 'tgrid');
+  const cols = mk('colgroup');
+  cols.appendChild(mk('col', 'ctime'));
+  TALKS.rooms.forEach(() => cols.appendChild(mk('col', 'croom')));
+  table.appendChild(cols);
+
+  const head = mk('thead'), hrow = mk('tr');
+  hrow.appendChild(mk('th', '', 'Time'));
+  TALKS.rooms.forEach(r => hrow.appendChild(mk('th', '', r)));
+  head.appendChild(hrow);
+  table.appendChild(head);
+
+  const body = mk('tbody');
+  TALKS.days.forEach(day => {
+    const rows = rowsFor(day.name);
+    if (!rows.length) return;
+    const banner = mk('tr', 'tday'), cell = mk('td');
+    cell.colSpan = TALKS.rooms.length + 1;
+    cell.appendChild(mk('h3', '', day.name));
+    cell.appendChild(mk('div', 'tdate', dayStamp(day)));
+    banner.appendChild(cell);
+    body.appendChild(banner);
+
+    rows.forEach(row => {
+      const tr = mk('tr', 'trow tmark');
+      tr.dataset.day = day.name;
+      tr.dataset.start = row.startMs;
+      tr.dataset.end = row.endMs;
+      const th = mk('th', 'ttime', row.time);
+      th.scope = 'row';
+      tr.appendChild(th);
+      let col = 0;
+      while (col < TALKS.rooms.length){
+        const t = row.byRoom[col];
+        if (t){
+          const td = talkCell(t, 'td');
+          if (t.span > 1) td.colSpan = t.span;
+          tr.appendChild(td);
+          col += t.span;                   // advance by the span, not by one
+        } else {
+          tr.appendChild(mk('td', 'tempty'));
+          col++;
+        }
+      }
+      body.appendChild(tr);
+    });
+  });
+  table.appendChild(body);
+  wrap.appendChild(table);
+  return wrap;
+}
+
+/* On a phone a 3-across grid is unreadable, so the same data becomes the linear
+   schedule vcfmw.org sends mobile visitors to. */
+function buildList(){
+  const wrap = mk('div', 'tlist');
+  TALKS.days.forEach(day => {
+    const items = TALKS.talks.filter(t => t.day === day.name)
+      .sort((a, b) => a.startMs - b.startMs || a.roomIdx - b.roomIdx);
+    if (!items.length) return;
+    const head = mk('div', 'tlday');
+    head.appendChild(mk('h3', '', day.name));
+    head.appendChild(mk('div', 'tdate', dayStamp(day)));
+    wrap.appendChild(head);
+    items.forEach(t => wrap.appendChild(talkCell(t, 'button')));
+  });
+  return wrap;
+}
+
+function renderTalks(){
+  if (!TALKS) return;
+  talksBody.textContent = '';
+  talksBody.appendChild(narrow.matches ? buildList() : buildGrid());
+  applyTalkClasses();
+  searchTalks(q.value.trim().toLowerCase());
+  updateNowLine();
+}
+
+function applyTalkClasses(){
+  talksBody.querySelectorAll('.tcell').forEach(el => {
+    const on = talkSel.has(el.dataset.id);
+    el.classList.toggle('sel', on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function talkEl(id){
+  return id ? talksBody.querySelector('.tcell[data-id="' + id + '"]') : null;
+}
+
+/* ---------- the details popover, shared with the map ---------- */
+function fillCardTalk(t){
+  cardKind = 'talk';
+  cardTalk = t.id;
+
+  document.getElementById('cName').textContent = t.title;
+
+  const who = document.getElementById('cTitle');
+  who.textContent = '';
+  if (t.speaker && t.url){
+    const a = document.createElement('a');
+    a.href = t.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = t.speaker;
+    who.appendChild(a);
+  } else if (t.speaker){
+    who.textContent = t.speaker;
+  }
+  who.style.display = t.speaker ? '' : 'none';
+
+  const desc = document.getElementById('cDesc');
+  desc.textContent = '';
+  if (t.abstract) desc.appendChild(mk('p', '', t.abstract));
+  if (t.bio){
+    const p = mk('p');
+    p.appendChild(mk('b', '', 'Bio: '));
+    p.appendChild(document.createTextNode(t.bio));
+    desc.appendChild(p);
+  }
+  desc.style.display = (t.abstract || t.bio) ? '' : 'none';
+
+  const note = document.getElementById('cNote');
+  note.textContent = t.kind === 'note' ? '' : 'End time estimated from the schedule grid.';
+  note.style.display = note.textContent ? '' : 'none';
+
+  resetCopy();
+
+  const meta = document.getElementById('cMeta');
+  meta.textContent = '';
+  const add = (k, v) => {
+    const s = document.createElement('span');
+    s.innerHTML = '<span class="k">' + k + '</span> ';
+    s.appendChild(document.createTextNode(v));
+    meta.appendChild(s);
+  };
+  add('When', t.day + ' ' + t.time);
+  add('Room', roomLabel(t));
+  add('Length', t.durationMin + ' min');
+}
+
+function placeTalkCard(){
+  const el = talkEl(cardTalk);
+  if (!el){ closeCard(); return; }
+  const r = el.getBoundingClientRect();
+  placeCardAt({l: r.left, r: r.right, t: r.top, b: r.bottom});
+}
+
+function showTalk(id){
+  const t = talkById.get(id);
+  if (!t) return;
+  fillCardTalk(t);
+  placeTalkCard();
+}
+
+/* ---------- selection ---------- */
+function toggleTalk(id){
+  talkPeekReset();
+  if (talkSel.has(id)){
+    talkSel.delete(id);
+    if (cardTalk === id){ talkPinned = null; closeCard(); }
+  } else {
+    talkSel.add(id);
+    talkPinned = id;
+    showTalk(id);
+  }
+  applyTalkClasses();
+  syncSelIO();
+}
+
+/* ---------- hover preview, on the map's timings ---------- */
+let talkPeekTimer = 0, talkPeekOut = 0, talkPeeking = null, talkHoverId = null;
+function talkPeekReset(){
+  clearTimeout(talkPeekTimer); clearTimeout(talkPeekOut);
+  talkPeekTimer = talkPeekOut = 0;
+  talkPeeking = talkHoverId = null;
+}
+function talkPeekEnter(id){
+  if (!canHover.matches) return;
+  clearTimeout(talkPeekOut); talkPeekOut = 0;
+  if (talkHoverId === id) return;          // already counting down on this cell
+  talkHoverId = id;
+  clearTimeout(talkPeekTimer);
+  if (talkPeeking !== null && talkPeeking !== id) talkPeekClose();
+  if (cardTalk === id && card.classList.contains('open')) return;
+  talkPeekTimer = setTimeout(() => {
+    talkPeekTimer = 0;
+    talkPeeking = id;
+    showTalk(id);
+  }, PEEK_DELAY);
+}
+function talkPeekClose(){
+  clearTimeout(talkPeekTimer); clearTimeout(talkPeekOut);
+  talkPeekTimer = talkPeekOut = 0;
+  if (talkPeeking === null) return;
+  talkPeeking = null;
+  if (talkPinned) showTalk(talkPinned);    // a pinned talk comes back
+  else closeCard();
+}
+function talkPeekLeave(){
+  clearTimeout(talkPeekTimer); talkPeekTimer = 0;
+  talkHoverId = null;
+  if (talkPeeking === null) return;
+  clearTimeout(talkPeekOut);
+  talkPeekOut = setTimeout(talkPeekClose, PEEK_GRACE);
+}
+/* the popover holds the speaker link and copy button, so hovering it holds it open */
+card.addEventListener('mouseenter', () => { clearTimeout(talkPeekOut); talkPeekOut = 0; });
+card.addEventListener('mouseleave', talkPeekLeave);
+
+talksBody.addEventListener('click', e => {
+  if (e.target.closest('a')) return;
+  const cell = e.target.closest('.tcell');
+  if (!cell){                              // tapping the background puts details away
+    talkPinned = null;
+    talkPeekReset();
+    if (cardKind === 'talk') closeCard();
+    return;
+  }
+  toggleTalk(cell.dataset.id);
+});
+talksBody.addEventListener('mouseover', e => {
+  const cell = e.target.closest('.tcell');
+  if (cell) talkPeekEnter(cell.dataset.id);
+});
+talksBody.addEventListener('mouseout', e => {
+  const cell = e.target.closest('.tcell');
+  if (!cell) return;
+  if (e.relatedTarget && cell.contains(e.relatedTarget)) return;
+  talkPeekLeave();
+});
+talksBody.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const cell = e.target.closest('.tcell');
+  if (!cell || cell.tagName !== 'TD') return;   // the phone cards are real buttons
+  e.preventDefault();
+  toggleTalk(cell.dataset.id);
+});
+talksBody.addEventListener('scroll', () => { if (cardKind === 'talk') placeTalkCard(); });
+
+/* ---------- the current-time rule ---------- */
+/* ?now=<ISO or epoch ms> previews the line outside the show; everything else
+   reads the real clock. Comparisons are in UTC, so the viewer's own timezone
+   never enters into it. */
+let nowOverride = null;
+(function(){
+  const raw = new URLSearchParams(location.search).get('now');
+  if (!raw) return;
+  const ms = /^\d+$/.test(raw) ? +raw : Date.parse(raw);
+  if (!isNaN(ms)) nowOverride = ms;
+})();
+function nowMs(){ return nowOverride === null ? Date.now() : nowOverride; }
+
+const NOW_TICK = 30000;
+let nowTimer = 0;
+function startNowTicks(){
+  stopNowTicks();
+  nowTimer = setInterval(updateNowLine, NOW_TICK);
+}
+function stopNowTicks(){ clearInterval(nowTimer); nowTimer = 0; }
+
+/* the day the clock is inside, measured against that day's own first and last
+   grid entries — not the published floor hours, which the evening talks run past */
+function liveDay(now){
+  if (!TALKS) return null;
+  for (const day of TALKS.days){
+    const items = TALKS.talks.filter(t => t.day === day.name);
+    if (!items.length) continue;
+    const from = Math.min.apply(null, items.map(t => t.startMs));
+    const to   = Math.max.apply(null, items.map(t => t.endMs));
+    if (now >= from && now <= to) return day.name;
+  }
+  return null;
+}
+
+function updateNowLine(){
+  const old = talksBody.querySelector('.tnow');
+  if (old) old.remove();
+  talksNowBtn.hidden = true;
+  if (!TALKS || !talksOpen()) return;
+
+  const now = nowMs();
+  const day = liveDay(now);
+  if (!day) return;
+
+  const host = talksBody.querySelector('.tgrid-wrap') || talksBody.querySelector('.tlist');
+  if (!host) return;
+
+  /* the live day's rows, in document order */
+  const marks = Array.from(host.querySelectorAll('.tmark'))
+    .filter(el => el.dataset.day === day);
+  if (!marks.length) return;
+
+  let at = null;
+  for (let i = 0; i < marks.length; i++){
+    const start = +marks[i].dataset.start;
+    if (start > now) break;
+    at = i;
+  }
+  if (at === null) return;
+
+  const el = marks[at];
+  const start = +el.dataset.start;
+  const next = marks[at + 1] ? +marks[at + 1].dataset.start : +el.dataset.end;
+  const denom = Math.max(1, next - start);
+  const frac = Math.min(1, Math.max(0, (now - start) / denom));
+
+  const hostTop = host.getBoundingClientRect().top;
+  const box = el.getBoundingClientRect();
+  const line = mk('div', 'tnow');
+  line.dataset.label = 'NOW ' + new Date(now).toLocaleTimeString('en-US',
+    {timeZone: TALKS.timezone || 'America/Chicago', hour: 'numeric', minute: '2-digit'});
+  line.style.top = Math.round(box.top - hostTop + box.height * frac) + 'px';
+  host.appendChild(line);
+  talksNowBtn.hidden = false;
+}
+
+function scrollToNow(smooth){
+  const line = talksBody.querySelector('.tnow');
+  if (!line) return;
+  line.scrollIntoView({block: 'center', behavior: smooth ? 'smooth' : 'auto'});
+}
+talksNowBtn.addEventListener('click', () => scrollToNow(true));
+
+/* ---------- opening and closing the panel ---------- */
+function talksOpen(){ return !talksPanel.classList.contains('hidden'); }
+function setTalks(open, focusBack){
+  if (!TALKS && open) return;
+  if (talksOpen() === open) return;
+  talksPanel.classList.toggle('hidden', !open);
+  talksPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+  talksBtn.setAttribute('aria-pressed', open);
+  if (open){
+    setList(false);                        // one panel in front at a time
+    peekReset();
+    if (cardKind === 'group') closeCard();  // leave the map's marks alone
+    renderTalks();
+    startNowTicks();
+    requestAnimationFrame(() => scrollToNow(false));
+  } else {
+    stopNowTicks();
+    talkPeekReset();
+    talkPinned = null;
+    if (cardKind === 'talk') closeCard();
+  }
+  if (focusBack) talksBtn.focus();
+  setPlaceholder();
+  setHint();
+  refreshSearch();
+}
+const MAP_HINT = document.getElementById('hint').textContent;
+function setHint(){
+  document.getElementById('hint').textContent = talksOpen()
+    ? 'Hover a talk for details or click to select it · export the selected talks to your calendar'
+    : MAP_HINT;
+}
+talksBtn.addEventListener('click', () => setTalks(!talksOpen()));
+document.getElementById('talksX').addEventListener('click', () => setTalks(false, true));
+
+/* the grid and the phone list are different renders of the same data */
+narrow.addEventListener('change', () => { if (talksOpen()) renderTalks(); });
+
+/* ---------- search over the schedule ---------- */
+function searchTalks(s){
+  if (!TALKS) return 0;
+  const cells = talksBody.querySelectorAll('.tcell');
+  if (!s){
+    talkHits = [];
+    cells.forEach(el => el.classList.remove('match', 'dim', 'hide'));
+    talksHead.textContent = 'Talks schedule';
+    return 0;
+  }
+  const score = t => {
+    const title = t.title.toLowerCase(), who = (t.speaker || '').toLowerCase();
+    if (who === s) return 0;
+    if (title === s) return 1;
+    if (title.startsWith(s)) return 2;
+    if (title.includes(s)) return 3;
+    if (who.includes(s)) return 4;
+    if ((t.room + ' ' + t.day + ' ' + t.time).toLowerCase().includes(s)) return 5;
+    if (t.hay.includes(s)) return 6;
+    return 99;
+  };
+  const hits = TALKS.talks.map(t => [score(t), t]).filter(p => p[0] < 99);
+  hits.sort((a, b) => a[0] - b[0] ||
+    a[1].startMs - b[1].startMs || a[1].roomIdx - b[1].roomIdx);
+  talkHits = hits.map(p => p[1]);
+
+  /* the grid dims its misses so the schedule's shape survives; the phone list
+     drops them, because there is no shape left to preserve */
+  const keep = new Set(talkHits.map(t => t.id));
+  const phone = narrow.matches;
+  cells.forEach(el => {
+    const on = keep.has(el.dataset.id);
+    el.classList.toggle('match', on);
+    el.classList.toggle('dim', !on && !phone);
+    el.classList.toggle('hide', !on && phone);
+  });
+  const term = '"' + q.value.trim() + '"';
+  talksHead.textContent = talkHits.length
+    ? talkHits.length + (talkHits.length === 1 ? ' talk matches ' : ' talks match ') + term
+    : 'No talks match ' + term;
+  return talkHits.length;
+}
+
+function setHits(btn, n){
+  if (n) btn.dataset.hits = n;
+  else delete btn.dataset.hits;
+}
+
+function openTalk(id){
+  if (!TALKS){ pendingTalkHash = id; return; }
+  if (!talkById.has(id)) return;
+  setTalks(true);
+  const el = talkEl(id);
+  if (el) el.scrollIntoView({block: 'center'});
+  talkPinned = id;
+  showTalk(id);
+}
 
 /* Save/Restore Exhibitors */
 const FORMAT  = 'vcfmw-table-guide-selections';
@@ -1193,10 +2708,21 @@ scheduleSheet();
 function syncSelIO(){
   scheduleSheet();
   if (!btnExport) return;
-  btnExport.disabled = selSet.size === 0;
-  btnExport.title = selSet.size
-    ? 'Export selected exhibitor' + (selSet.size === 1 ? '' : 's')
-    : 'Select an exhibitor first';
+  const n = selSet.size, m = talkSel.size;
+  btnExport.disabled = !n && !m;
+  const parts = [];
+  if (n) parts.push(n + ' exhibitor' + (n === 1 ? '' : 's'));
+  if (m) parts.push(m + ' talk' + (m === 1 ? '' : 's'));
+  btnExport.title = parts.length
+    ? 'Export ' + parts.join(' and ')
+    : 'Select an exhibitor or a talk first';
+  if (btnCal){
+    btnCal.hidden = !TALKS;
+    btnCal.disabled = !m;
+    btnCal.title = m
+      ? 'Add ' + m + ' talk' + (m === 1 ? '' : 's') + ' to your calendar (.ics)'
+      : 'Select a talk first';
+  }
 }
 let msgTimer = 0;
 function say(text){
@@ -1207,22 +2733,31 @@ function say(text){
 syncSelIO();
 
 btnExport.addEventListener('click', () => {
-  if (!selSet.size) return;
+  if (!selSet.size && !talkSel.size) return;
   const picked = Array.from(selSet)
     .map(gi => DATA.groups[gi])
     .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  const talks = Array.from(talkSel).map(id => talkById.get(id)).filter(Boolean)
+    .sort((a, b) => a.startMs - b.startMs || a.roomIdx - b.roomIdx);
+  /* v2 only adds keys. An older build reads `selections` and ignores the rest,
+     and this build still reads a v1 file, so a list moves either way. */
   const doc = {
     format: FORMAT,
-    version: 1,
+    version: 2,
     event: eventName,
     saved: new Date().toISOString(),
     count: picked.length,
-    selections: picked.map(g => ({ name: g.name, tables: g.locs.slice() }))
+    selections: picked.map(g => ({ name: g.name, tables: g.locs.slice() })),
+    talkCount: talks.length,
+    talks: talks.map(t => ({
+      id: t.id, title: t.title, speaker: t.speaker,
+      day: t.day, time: t.time, room: roomLabel(t)
+    }))
   };
   const stamp = new Date().toISOString().slice(0, 10);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(doc, null, 2)], {type:'application/json'}));
-  a.download = eventName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-exhibitors-' + stamp + '.json';
+  a.download = fileStem() + '-selections-' + stamp + '.json';
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -1234,21 +2769,25 @@ selFile.addEventListener('change', () => {
   const f = selFile.files && selFile.files[0];
   if (!f) return;
   const r = new FileReader();
-  r.onerror = () => say("Invalid exhibitors file");
+  r.onerror = () => say('Invalid selections file');
   r.onload = () => {
     let doc;
     try { doc = JSON.parse(r.result); }
-    catch (err) { say('Invalid exhibitor file'); return; }
+    catch (err) { say('Invalid selections file'); return; }
     restore(doc);
   };
   r.readAsText(f);
 });
 
 function restore(doc){
-  let entries = Array.isArray(doc) ? doc
+  const bare = Array.isArray(doc);
+  let entries = bare ? doc
               : (doc && Array.isArray(doc.selections)) ? doc.selections
               : null;
-  if (!entries){ say('Invalid exhibitors file'); return; }
+  /* v1 files have no `talks` key at all, which is what keeps them loading here */
+  const talkEntries = (!bare && doc && Array.isArray(doc.talks)) ? doc.talks : null;
+  if (!entries && !talkEntries){ say('Invalid selections file'); return; }
+  entries = entries || [];
 
   const found = [], missing = [];
   entries.forEach(en => {
@@ -1266,21 +2805,132 @@ function restore(doc){
     else if (found.indexOf(gi) < 0) found.push(gi);
   });
 
-  if (!found.length){ say('No exhibitors from that file are in this guide'); return; }
-
-  clearSel(true);
-  if (found.length > 1) keepSel.checked = true;
-  found.forEach(gi => {
-    selSet.add(gi);
-    hotsByGroup[gi].forEach(e => e.classList.add('sel'));
-    const li = listItem(gi);
-    if (li) li.classList.add('on');
+  /* Talks are matched on id, then on title: an id encodes the day, time and room,
+     so it changes if VCFMW moves a talk, and the title is what survives that. */
+  const tFound = [], tMissing = [];
+  (talkEntries || []).forEach(en => {
+    const id    = typeof en === 'string' ? en : (en && en.id) || '';
+    const title = (en && en.title) || '';
+    let hit = talkById.has(id) ? id : null;
+    if (!hit && title){
+      const want = String(title).trim().toLowerCase();
+      for (const t of talkById.values()){
+        if (t.title.trim().toLowerCase() === want){ hit = t.id; break; }
+      }
+    }
+    if (!hit) tMissing.push(title || id || '?');
+    else if (tFound.indexOf(hit) < 0) tFound.push(hit);
   });
+
+  if (!found.length && !tFound.length){
+    say(talkEntries && !entries.length
+      ? 'No talks from that file are in this schedule'
+      : 'No exhibitors from that file are in this guide');
+    return;
+  }
+
+  if (found.length){
+    clearSel(true);
+    if (found.length > 1) keepSel.checked = true;
+    found.forEach(gi => {
+      selSet.add(gi);
+      hotsByGroup[gi].forEach(e => e.classList.add('sel'));
+      const li = listItem(gi);
+      if (li) li.classList.add('on');
+    });
+  }
+  if (tFound.length){
+    talkSel.clear();
+    tFound.forEach(id => talkSel.add(id));
+    applyTalkClasses();
+  }
   syncSelIO();
-  select(found[0], {center:true, scrollList:true, keep:true});
-  say('Restored ' + found.length + ' exhibitor' + (found.length === 1 ? '' : 's')
-      + (missing.length ? ' — not found: ' + missing.join(', ') : ''));
+  if (found.length) select(found[0], {center:true, scrollList:true, keep:true});
+  else if (tFound.length) openTalk(tFound[0]);
+
+  const parts = [];
+  if (found.length)  parts.push(found.length + ' exhibitor' + (found.length === 1 ? '' : 's'));
+  if (tFound.length) parts.push(tFound.length + ' talk' + (tFound.length === 1 ? '' : 's'));
+  const gone = missing.concat(tMissing);
+  say('Restored ' + parts.join(' and ')
+      + (gone.length ? ' — not found: ' + gone.join(', ') : ''));
 }
+
+/* ---------- calendar export ---------- */
+/* RFC 5545. Times come out of talks.json already in UTC, so nothing here has to
+   know that the show runs on CDT. */
+function icsEsc(v){
+  return String(v)
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n');
+}
+function icsFold(line){
+  const bytes = new TextEncoder().encode(line);
+  if (bytes.length <= 75) return line;
+  const dec = new TextDecoder();
+  const out = [];
+  let i = 0, limit = 75;
+  while (i < bytes.length){
+    let take = Math.min(limit, bytes.length - i);
+    while (take > 1 && i + take < bytes.length && (bytes[i + take] & 0xC0) === 0x80) take--;
+    out.push((out.length ? ' ' : '') + dec.decode(bytes.subarray(i, i + take)));
+    i += take;
+    limit = 74;
+  }
+  return out.join('\r\n');
+}
+function fileStem(){
+  return (eventName || 'vcf-midwest').toLowerCase().replace(/[^a-z0-9]+/g, '-')
+         .replace(/^-|-$/g, '');
+}
+function download(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+btnCal.addEventListener('click', () => {
+  const chosen = Array.from(talkSel).map(id => talkById.get(id))
+    .filter(t => t && t.kind !== 'note')
+    .sort((a, b) => a.startMs - b.startMs || a.roomIdx - b.roomIdx);
+  if (!chosen.length){ say('Select a talk first'); return; }
+
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+  const out = ['BEGIN:VCALENDAR', 'VERSION:2.0',
+               'PRODID:-//vcfmw21-map//Talks//EN',
+               'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+  chosen.forEach(t => {
+    const body = [
+      t.speaker,
+      t.abstract,
+      t.bio ? 'Bio: ' + t.bio : '',
+      t.url,
+      'End time estimated from the published schedule grid.'
+    ].filter(Boolean).join('\n\n');
+    out.push('BEGIN:VEVENT');
+    out.push('UID:' + t.id + '@vcfmw21-map');   // stable, so a re-import updates
+    out.push('DTSTAMP:' + stamp);
+    out.push('DTSTART:' + t.startUtc);
+    out.push('DTEND:' + t.endUtc);
+    out.push('SUMMARY:' + icsEsc(t.title));
+    out.push('LOCATION:' + icsEsc(roomLabel(t) + ', ' + (TALKS.event || eventName)));
+    if (t.url) out.push('URL:' + t.url);
+    out.push('DESCRIPTION:' + icsEsc(body));
+    out.push('END:VEVENT');
+  });
+  out.push('END:VCALENDAR');
+
+  download(new Blob([out.map(icsFold).join('\r\n') + '\r\n'],
+                    {type: 'text/calendar;charset=utf-8'}),
+           fileStem() + '-talks.ics');
+  say('Exported ' + chosen.length + ' talk' + (chosen.length === 1 ? '' : 's') + ' to .ics');
+});
 
 // Everything a #group link touches now exists
 booted = true;

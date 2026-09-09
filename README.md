@@ -48,6 +48,81 @@ With the box ticked:
 **export** writes the current exhibitor selections to a JSON file and **import** reads it
 back, which is how a list survives closing the tab or moves to your phone.
 
+## Talks schedule
+
+**Talks**, next to **Exhibitors** in the header, opens the presentation schedule over the
+map. It is the same grid VCF Midwest publishes at
+[vcfmw.org/talkschedule](https://vcfmw.org/talkschedule) — time down the side, the three
+rooms across — drawn in the same light palette as the rest of the guide, so the schedule
+and the map read as one page rather than two. Talks you have kept are marked in the same
+cyan the map uses for a selected table, and a search hit in the same amber.
+
+- **Hover a talk for a second** and its abstract, speaker bio and room open in the same
+  popover the map uses. Moving off closes it; the popover stays up while the pointer is on
+  it, so the speaker's link is reachable.
+- **Click or tap a talk** to keep it. It stays marked, and clicking it again drops it.
+  Unlike the map, talks are always multi-select — there is no checkbox to tick first.
+- **Tapping the background or pressing Escape** puts the details away and leaves your
+  picks alone.
+- **Searching** works on the schedule while it is open: titles, speakers, rooms, times and
+  the full abstracts. The grid dims what does not match so you can still see when things
+  are; on a phone it filters the list instead. The count on the other toggle tells you how
+  many exhibitors also match, so a search is never a dead end.
+- **On a phone** the grid becomes a linear day-by-day list, which is what vcfmw.org sends
+  mobile visitors to anyway.
+
+During the show, a red rule is drawn across the grid at the current time, labelled with the
+local hour, and the **now** button scrolls to it. It appears only while the schedule is
+actually running — Saturday 10:00 AM to the end of the evening concert, and Sunday morning
+to show close — and stays hidden the rest of the year. Append `?now=2026-09-12T16:20:00Z`
+to the URL to preview it.
+
+### Adding talks to your calendar
+
+**calendar**, in the schedule's header, writes the talks you have kept to a `.ics` file
+that Google Calendar, Apple Calendar and Outlook all import. Each event carries the
+abstract, the speaker bio and the room.
+
+Two things worth knowing: the grid publishes start times only, so **end times are worked
+out from the next talk in the same room** and every event says so in its description. And
+each event's UID is stable, so re-importing after adding a few more talks updates what is
+already in your calendar instead of duplicating it.
+
+### Where the schedule comes from
+
+`talks.json` is generated from the published page by `tools/parse_talks.py`, and committed.
+The schedule is also written **into `index.html` itself**, so the page works when you open
+it straight off the filesystem — a browser will not `fetch()` from a `file://` page.
+
+To refresh both after VCF Midwest changes the schedule:
+
+```sh
+python tools/parse_talks.py --fetch --inline index.html   # the one to run
+python tools/parse_talks.py --fetch --check               # parse and report, write nothing
+```
+
+Run the first one whenever the schedule changes: it writes `talks.json` **and** updates the
+copy inside `index.html` in the same pass, so the two cannot drift apart. If you only run
+`--fetch`, the served site picks up the new `talks.json` but a page opened from disk still
+shows the old inlined copy.
+
+`--fetch` parses the downloaded page from memory and does not leave the scrape behind; add
+`--save-source` if you want it kept.
+
+The script needs only the Python standard library. It refuses to write a file it cannot
+make sense of — a missing table, an unknown day, an unparseable time, a row whose cells
+overrun the rooms — so a change at vcfmw.org shows up as a failed run rather than a
+half-empty schedule.
+
+The event dates and timezone are constants at the top of that script, since the published
+grid names only "Saturday" and "Sunday". For VCF Midwest 21 they are 12–13 September 2026,
+US Central.
+
+The page reads the inlined schedule when it is there and falls back to fetching
+`talks.json` when it is not, so both a static file and a served copy work. If neither is
+available the **Talks** button is hidden, the console explains why, and the map behaves
+exactly as it did before.
+
 ## Linking to a specific exhibitor
 
 The URL fragment opens one exhibitor directly:
